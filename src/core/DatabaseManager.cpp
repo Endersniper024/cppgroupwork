@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QCryptographicHash> // 用于密码哈希 (示例)
+#include <QCoreApplication>
 
 DatabaseManager& DatabaseManager::instance() {
     static DatabaseManager dmInstance;
