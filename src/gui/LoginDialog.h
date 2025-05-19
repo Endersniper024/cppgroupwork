@@ -18,6 +18,8 @@ public:
     QString getEmail() const;
     QString getPassword() const;
     bool isRememberMeChecked() const;
+    bool setEmail(const QString& email) ;
+    bool setRememberMeChecked(bool checked) ;
 
 
 signals:

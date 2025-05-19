@@ -45,18 +45,25 @@ set(PROJECT_SOURCES
     src/main.cpp
     src/core/User.cpp
     src/core/DatabaseManager.cpp
+    src/core/Subject.cpp
+    src/gui/ProfileDialog.cpp
     src/gui/LoginDialog.cpp
     src/gui/MainWindow.cpp
+    src/gui/SubjectDialog.cpp
     # Add more source files as they are created
 )
 
 set(PROJECT_HEADERS
     src/core/User.h
     src/core/DatabaseManager.h
+    src/core/Subject.h
+    src/gui/ui_ProfileDialog.h
     src/gui/ui_LoginDialog.h
     src/gui/ui_MainWindow.h
+    src/gui/ProfileDialog.h
     src/gui/LoginDialog.h
     src/gui/MainWindow.h
+    src/gui/SubjectDialog.h
     # Add more header files
 )
 

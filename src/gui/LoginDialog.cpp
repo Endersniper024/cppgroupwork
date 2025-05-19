@@ -63,3 +63,14 @@ void LoginDialog::on_registerButton_clicked() {
     // 可以弹出一个新的注册对话框
     QMessageBox::information(this, "注册", "注册功能尚未实现。");
 }
+
+bool LoginDialog::setEmail(const QString& email) {
+    if (email.isEmpty()) return false;
+    ui->emailLineEdit->setText(email);
+    return true;
+}
+
+bool LoginDialog::setRememberMeChecked(bool checked) {
+    ui->rememberMeCheckBox->setChecked(checked);
+    return true;
+}

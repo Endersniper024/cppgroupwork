@@ -4,6 +4,7 @@
 #include "core/DatabaseManager.h"
 #include <QDebug>
 #include <QDir> // For QDir::setCurrent
+#include <QSettings>
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
@@ -32,17 +33,25 @@ int main(int argc, char *argv[]) {
     LoginDialog loginDialog(&w); // 将主窗口作为父窗口，登录对话框关闭时不会连带关闭主窗口
 
     // 尝试从 QSettings 加载 "记住我" 的用户 (可选)
-    // QSettings settings;
-    // QString lastUserEmail = settings.value("lastUserEmail").toString();
-    // if (!lastUserEmail.isEmpty()) {
-    //     // 自动填充邮箱，或者尝试自动登录 (如果保存的是令牌)
-    //     // loginDialog.setEmail(lastUserEmail);
-    //     // 如果是自动登录，这里需要验证令牌，然后直接显示主窗口
-    // }
+    QSettings settings;
+    QString lastUserEmail = settings.value("lastUserEmail").toString();
+    bool rememberMe = settings.value("rememberMe", false).toBool();
+    loginDialog.setRememberMeChecked(rememberMe);
+    if (rememberMe && !lastUserEmail.isEmpty()) {
+        loginDialog.setEmail(lastUserEmail);
+    }
 
     // 先显示登录对话框
     if (loginDialog.exec() == QDialog::Accepted) {
         QString userEmail = loginDialog.getEmail();
+        bool rememberMe = loginDialog.isRememberMeChecked();
+        if (rememberMe) {
+            settings.setValue("lastUserEmail", userEmail);
+            settings.setValue("rememberMe", true);
+        } else {
+            settings.remove("lastUserEmail");
+            settings.setValue("rememberMe", false);
+        }
         User currentUser = DatabaseManager::instance().getUserByEmail(userEmail);
         if (currentUser.isValid()) {
             w.setCurrentUser(currentUser);
