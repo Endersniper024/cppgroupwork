@@ -43,13 +43,19 @@ set(CMAKE_AUTORCC ON)
 # Project Sources
 set(PROJECT_SOURCES
     src/main.cpp
+
     src/core/User.cpp
     src/core/DatabaseManager.cpp
     src/core/Subject.cpp
+    src/core/Task.cpp
+    src/core/TimeLog.cpp
+
     src/gui/ProfileDialog.cpp
     src/gui/LoginDialog.cpp
     src/gui/MainWindow.cpp
     src/gui/SubjectDialog.cpp
+    src/gui/TaskDialog.cpp
+    src/gui/TimerWidget.cpp
     # Add more source files as they are created
 )
 
@@ -57,6 +63,9 @@ set(PROJECT_HEADERS
     src/core/User.h
     src/core/DatabaseManager.h
     src/core/Subject.h
+    src/core/Task.h
+    src/core/TimeLog.h
+
     src/gui/ui_ProfileDialog.h
     src/gui/ui_LoginDialog.h
     src/gui/ui_MainWindow.h
@@ -64,6 +73,8 @@ set(PROJECT_HEADERS
     src/gui/LoginDialog.h
     src/gui/MainWindow.h
     src/gui/SubjectDialog.h
+    src/gui/TaskDialog.h
+    src/gui/TimerWidget.h
     # Add more header files
 )
 

@@ -7,6 +7,8 @@
 #include <QList>
 #include "User.h"   // 包含用户结构体定义
 #include "Subject.h" // 包含学科结构体定义
+#include "Task.h" // 包含学科任务
+#include "TimeLog.h" // 包含任务时间
 
 class DatabaseManager {
 public:
@@ -31,6 +33,25 @@ public:
     bool updateSubject(const Subject& subject);
     bool deleteSubject(int subjectId, int userId);
     bool subjectExists(const QString& name, int userId, int excludeSubjectId = -1); // For validation
+
+    // 学科任务 TM-002
+    bool initTaskTable();
+    bool addTask(Task& task); // Pass by reference to get ID back
+    Task getTaskById(int taskId, int userId);
+    QList<Task> getTasksBySubject(int subjectId, int userId, TaskStatus filterStatus = TaskStatus(-1) /* -1 means all */, bool includeCompleted = false);
+    QList<Task> getTasksByUser(int userId, TaskStatus filterStatus = TaskStatus(-1), bool includeCompleted = false); // For dashboard/all tasks view
+    bool updateTask(const Task& task);
+    bool deleteTask(int taskId, int userId);
+    bool updateTaskStatus(int taskId, TaskStatus newStatus, int userId);
+    bool incrementTaskActualTime(int taskId, int minutesToAdd, int userId); // For TM-003
+
+    // 任务时间记录 TimeLog Management (TM-003, TM-004)
+    bool initTimeLogTable();
+    bool addTimeLog(TimeLog& timeLog); // Pass by reference to get ID back
+    QList<TimeLog> getTimeLogsByUser(int userId, const QDateTime& fromDate = QDateTime(), const QDateTime& toDate = QDateTime());
+    QList<TimeLog> getTimeLogsByTask(int taskId, int userId);
+    QList<TimeLog> getTimeLogsBySubject(int subjectId, int userId);
+
 
     // QString hashPassword(const QString& password) const;
 

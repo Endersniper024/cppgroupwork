@@ -4,6 +4,8 @@
 #include "LoginDialog.h"    // 需要包含 LoginDialog 以便可以重新显示
 #include "ProfileDialog.h"  // (后续添加)
 #include "gui/SubjectDialog.h" // For opening the subject dialog
+#include "gui/TaskDialog.h" // For task management
+#include "gui/TimerWidget.h" // Time 
 
 
 #include <QDockWidget>
@@ -18,6 +20,11 @@
 #include <QMessageBox>
 #include <QDebug>
 #include <QApplication> // For qApp
+#include <QTableView>
+#include <QStandardItemModel>
+#include <QHeaderView> // For table header properties
+#include <QMenu>       // For context menu on tasks
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -26,8 +33,13 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowTitle("协同学习时间管理平台");
     setupMenuBar();
     setupSubjectDockWidget(); // Add this call
+    setupTaskView();
+    setupTimerDockWidget();
+
+
     updateStatusBar();
-    updateSubjectActionButtons(); // Initial state
+    updateSubjectActionButtons(); // Initial Subject state
+    updateTaskActionButtons(); // Initial state for task buttons
     // 初始时，主窗口可以隐藏，直到登录成功
     // this->hide();
 }
@@ -65,6 +77,9 @@ void MainWindow::setupMenuBar() {
 
 void MainWindow::setCurrentUser(const User& user) {
     m_currentUser = user;
+
+    if (m_timerWidget) m_timerWidget->setCurrentUser(m_currentUser); // Pass user to timer
+    
     if (m_currentUser.isValid()) {
         qDebug() << "MainWindow: Current user set to" << m_currentUser.email;
         ui->welcomeLabel->setText(QString("欢迎您, %1!").arg(m_currentUser.nickname.isEmpty() ? m_currentUser.email : m_currentUser.nickname));
@@ -72,9 +87,12 @@ void MainWindow::setCurrentUser(const User& user) {
     } else {
         ui->welcomeLabel->setText("未登录");
         m_subjectListWidget->clear(); // Clear subjects if no user
+        if (m_taskTableModel) m_taskTableModel->clear();
+        if (m_timerWidget) m_timerWidget->refreshTargetSelection();
     }
     updateStatusBar();
     updateSubjectActionButtons();
+    updateTaskActionButtons();
 }
 
 void MainWindow::updateStatusBar() {
@@ -225,6 +243,7 @@ void MainWindow::loadSubjectsForCurrentUser() {
         }
     }
     updateSubjectActionButtons();
+    if (m_timerWidget) m_timerWidget->refreshTargetSelection();
 }
 
 void MainWindow::updateSubjectActionButtons() {
@@ -235,17 +254,35 @@ void MainWindow::updateSubjectActionButtons() {
 }
 
 
+// void MainWindow::onSubjectListSelectionChanged() {
+//     updateSubjectActionButtons();
+//     QListWidgetItem *currentItem = m_subjectListWidget->currentItem();
+//     if (currentItem) {
+//         int subjectId = currentItem->data(Qt::UserRole).toInt();
+//         qDebug() << "Selected Subject ID:" << subjectId << "Name:" << currentItem->text();
+//         // TODO: Later, load tasks for this subject into a central view
+//     } else {
+//         qDebug() << "No subject selected.";
+//         // TODO: Clear or update task view
+//     }
+// }
+
+
 void MainWindow::onSubjectListSelectionChanged() {
     updateSubjectActionButtons();
-    QListWidgetItem *currentItem = m_subjectListWidget->currentItem();
-    if (currentItem) {
-        int subjectId = currentItem->data(Qt::UserRole).toInt();
-        qDebug() << "Selected Subject ID:" << subjectId << "Name:" << currentItem->text();
-        // TODO: Later, load tasks for this subject into a central view
+    Subject selectedSubject = getCurrentSelectedSubject();
+
+    if (selectedSubject.isValid()) {
+        qDebug() << "Selected Subject ID:" << selectedSubject.id << "Name:" << selectedSubject.name;
+        loadTasksForSubject(selectedSubject.id);
     } else {
-        qDebug() << "No subject selected.";
-        // TODO: Clear or update task view
+        qDebug() << "No subject selected or invalid.";
+        if (m_taskTableModel) m_taskTableModel->clear(); // Clear task table
+        m_taskTableModel->setHorizontalHeaderLabels({
+             tr("任务名称"), tr("截止日期"), tr("优先级"), tr("状态"), tr("预计(分钟)"), tr("实际(分钟)")
+        }); // Reset headers if cleared
     }
+    updateTaskActionButtons(); // Update based on new task list (empty or not)
 }
 
 void MainWindow::onAddSubject() {
@@ -337,3 +374,322 @@ void MainWindow::onDeleteSubject() {
         }
     }
 }
+
+// Task management functions TM-002
+void MainWindow::setupTaskView() {
+    // Assuming mainContentLayout is the QVBoxLayout of centralwidget from the UI
+    // If you added a placeholder in UI: m_taskTableView = ui->taskTableViewPlaceholder;
+    // else:
+    m_taskTableView = new QTableView(this);
+    m_taskTableModel = new QStandardItemModel(0, 6, this); // Rows, Cols (Name, Due, Priority, Status, Est. Time, Actual Time)
+    
+    m_taskTableModel->setHorizontalHeaderLabels({
+        tr("任务名称"), tr("截止日期"), tr("优先级"), tr("状态"), tr("预计(分钟)"), tr("实际(分钟)")
+    });
+    m_taskTableView->setModel(m_taskTableModel);
+    m_taskTableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    m_taskTableView->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_taskTableView->setEditTriggers(QAbstractItemView::NoEditTriggers); // Read-only table
+    m_taskTableView->horizontalHeader()->setStretchLastSection(true);
+    m_taskTableView->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    connect(m_taskTableView, &QTableView::doubleClicked, this, &MainWindow::onTaskTableDoubleClicked);
+    connect(m_taskTableView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::updateTaskActionButtons);
+    connect(m_taskTableView, &QTableView::customContextMenuRequested, this, [this](const QPoint &pos){
+        QModelIndex index = m_taskTableView->indexAt(pos);
+        if (index.isValid()) {
+            QMenu contextMenu(this);
+            QAction *editAction = contextMenu.addAction(tr("编辑任务..."));
+            QAction *deleteAction = contextMenu.addAction(tr("删除任务"));
+            contextMenu.addSeparator();
+            QAction *markPendingAction = contextMenu.addAction(tr("标记为 待办"));
+            QAction *markInProgressAction = contextMenu.addAction(tr("标记为 进行中"));
+            QAction *markCompletedAction = contextMenu.addAction(tr("标记为 已完成"));
+
+            connect(editAction, &QAction::triggered, this, &MainWindow::onEditTask);
+            connect(deleteAction, &QAction::triggered, this, &MainWindow::onDeleteTask);
+            
+            auto createTaskStatusUpdater = [&](TaskStatus status) {
+                return [this, status]() {
+                    Task task = getCurrentSelectedTask();
+                    if (task.isValid() && DatabaseManager::instance().updateTaskStatus(task.id, status, m_currentUser.id)) {
+                        loadTasksForSubject(task.subjectId); // Refresh
+                    } else {
+                        QMessageBox::warning(this, tr("错误"), tr("无法更新任务状态。"));
+                    }
+                };
+            };
+            connect(markPendingAction, &QAction::triggered, createTaskStatusUpdater(TaskStatus::Pending));
+            connect(markInProgressAction, &QAction::triggered, createTaskStatusUpdater(TaskStatus::InProgress));
+            connect(markCompletedAction, &QAction::triggered, createTaskStatusUpdater(TaskStatus::Completed));
+            
+            contextMenu.exec(m_taskTableView->viewport()->mapToGlobal(pos));
+        }
+    });
+
+
+    // Layout for task buttons
+    QHBoxLayout *taskButtonLayout = new QHBoxLayout();
+    m_addTaskButton = new QPushButton(tr("添加任务"), this);
+    m_editTaskButton = new QPushButton(tr("编辑任务"), this);
+    m_deleteTaskButton = new QPushButton(tr("删除任务"), this);
+    // m_changeTaskStatusButton = new QPushButton(tr("更改状态"), this); // Example
+
+    connect(m_addTaskButton, &QPushButton::clicked, this, &MainWindow::onAddTask);
+    connect(m_editTaskButton, &QPushButton::clicked, this, &MainWindow::onEditTask);
+    connect(m_deleteTaskButton, &QPushButton::clicked, this, &MainWindow::onDeleteTask);
+    // connect(m_changeTaskStatusButton, &QPushButton::clicked, this, &MainWindow::onChangeTaskStatus);
+
+
+    taskButtonLayout->addWidget(m_addTaskButton);
+    taskButtonLayout->addWidget(m_editTaskButton);
+    taskButtonLayout->addWidget(m_deleteTaskButton);
+    // taskButtonLayout->addWidget(m_changeTaskStatusButton);
+    taskButtonLayout->addStretch();
+
+    // Add to the central widget's layout (mainContentLayout from .ui file)
+    QVBoxLayout* centralLayout;
+    if (ui->centralwidget->layout()) {
+        centralLayout = qobject_cast<QVBoxLayout*>(ui->centralwidget->layout());
+    } else {
+        centralLayout = new QVBoxLayout(ui->centralwidget); // Should exist from .ui
+    }
+    
+    if (centralLayout) { // Should be named mainContentLayout in .ui
+        QLabel* taskSectionLabel = new QLabel(tr("当前科目任务:"), this);
+        QFont font = taskSectionLabel->font();
+        font.setPointSize(12);
+        font.setBold(true);
+        taskSectionLabel->setFont(font);
+
+        centralLayout->addWidget(taskSectionLabel);
+        centralLayout->addLayout(taskButtonLayout);
+        centralLayout->addWidget(m_taskTableView);
+    } else {
+        qWarning() << "Central widget layout (mainContentLayout) not found or not QVBoxLayout!";
+    }
+}
+
+Subject MainWindow::getCurrentSelectedSubject() {
+    QListWidgetItem *currentSubjectItem = m_subjectListWidget->currentItem();
+    if (currentSubjectItem && m_currentUser.isValid()) {
+        int subjectId = currentSubjectItem->data(Qt::UserRole).toInt();
+        return DatabaseManager::instance().getSubjectById(subjectId, m_currentUser.id);
+    }
+    return Subject(); // Invalid subject
+}
+
+Task MainWindow::getCurrentSelectedTask() {
+    QModelIndexList selectedIndexes = m_taskTableView->selectionModel()->selectedRows();
+    if (!selectedIndexes.isEmpty() && m_currentUser.isValid()) {
+        int taskId = m_taskTableModel->item(selectedIndexes.first().row(), 0)->data(Qt::UserRole).toInt(); // Assuming ID in UserRole of first col
+        return DatabaseManager::instance().getTaskById(taskId, m_currentUser.id);
+    }
+    return Task(); // Invalid task
+}
+
+void MainWindow::loadTasksForSubject(int subjectId) {
+    if (!m_taskTableModel) return;
+    m_taskTableModel->removeRows(0, m_taskTableModel->rowCount()); // Clear existing rows
+
+    if (!m_currentUser.isValid() || subjectId == -1) {
+        updateTaskActionButtons();
+        return;
+    }
+
+    QList<Task> tasks = DatabaseManager::instance().getTasksBySubject(subjectId, m_currentUser.id, TaskStatus(-1), true /*include completed*/);
+    for (const Task& task : tasks) {
+        QList<QStandardItem*> rowItems;
+        QStandardItem* nameItem = new QStandardItem(task.name);
+        nameItem->setData(task.id, Qt::UserRole); // Store task ID
+        nameItem->setToolTip(task.description);
+        rowItems.append(nameItem);
+
+        rowItems.append(new QStandardItem(task.dueDate.isValid() ? task.dueDate.toString("yyyy-MM-dd HH:mm") : tr("未设置")));
+        rowItems.append(new QStandardItem(priorityToString(task.priority)));
+        
+        QStandardItem* statusItem = new QStandardItem(statusToString(task.status));
+        if (task.status == TaskStatus::Completed) {
+            QFont font = statusItem->font();
+            font.setStrikeOut(true);
+            statusItem->setFont(font);
+            statusItem->setForeground(Qt::gray);
+        }
+        rowItems.append(statusItem);
+
+        rowItems.append(new QStandardItem(QString::number(task.estimatedTimeMinutes)));
+        rowItems.append(new QStandardItem(QString::number(task.actualTimeMinutes)));
+        
+        m_taskTableModel->appendRow(rowItems);
+    }
+    m_taskTableView->resizeColumnsToContents();
+    updateTaskActionButtons();
+    if (m_timerWidget) m_timerWidget->refreshTargetSelection();
+}
+
+
+void MainWindow::updateTaskActionButtons() {
+    bool subjectSelected = m_subjectListWidget->currentItem() != nullptr;
+    bool taskSelected = !m_taskTableView->selectionModel()->selectedRows().isEmpty();
+
+    m_addTaskButton->setEnabled(subjectSelected && m_currentUser.isValid());
+    m_editTaskButton->setEnabled(taskSelected && m_currentUser.isValid());
+    m_deleteTaskButton->setEnabled(taskSelected && m_currentUser.isValid());
+    // m_changeTaskStatusButton->setEnabled(taskSelected && m_currentUser.isValid());
+}
+
+void MainWindow::onTaskTableDoubleClicked(const QModelIndex &index) {
+    if (index.isValid()) {
+        onEditTask(); // Edit on double click
+    }
+}
+
+void MainWindow::onAddTask() {
+    Subject currentSubject = getCurrentSelectedSubject();
+    if (!currentSubject.isValid()) {
+        QMessageBox::information(this, tr("添加任务"), tr("请先选择一个科目。"));
+        return;
+    }
+
+    QList<Subject> allSubjects = DatabaseManager::instance().getSubjectsByUser(m_currentUser.id);
+    TaskDialog dialog(m_currentUser.id, allSubjects, this, currentSubject.id);
+
+    if (dialog.exec() == QDialog::Accepted) {
+        Task newTask = dialog.getTaskData();
+        // newTask.userId is set in dialog, subjectId is set from combobox
+        // creationDate is set in dialog
+
+        if (DatabaseManager::instance().addTask(newTask)) {
+            loadTasksForSubject(currentSubject.id); // Refresh list
+            QMessageBox::information(this, tr("成功"), tr("任务 '%1' 已添加。").arg(newTask.name));
+        } else {
+            QMessageBox::critical(this, tr("错误"), tr("无法添加任务到数据库。"));
+        }
+    }
+}
+
+void MainWindow::onEditTask() {
+    Task currentTask = getCurrentSelectedTask();
+    if (!currentTask.isValid()) {
+        QMessageBox::information(this, tr("编辑任务"), tr("请先选择一个任务进行编辑。"));
+        return;
+    }
+
+    QList<Subject> allSubjects = DatabaseManager::instance().getSubjectsByUser(m_currentUser.id);
+    TaskDialog dialog(m_currentUser.id, currentTask, allSubjects, this);
+
+    if (dialog.exec() == QDialog::Accepted) {
+        Task updatedTask = dialog.getTaskData();
+        // Ensure ID and UserID are preserved from the original task for update
+        updatedTask.id = currentTask.id;
+        updatedTask.userId = m_currentUser.id;
+        // actualTimeMinutes and creationDate are not typically changed by this dialog, ensure they are preserved
+        // or handled if the dialog can modify them. TaskDialog currently doesn't modify actualTime.
+        // It does re-set creationDate if it's a new task, but for edit, m_task(taskToEdit) preserves it.
+
+        if (DatabaseManager::instance().updateTask(updatedTask)) {
+            loadTasksForSubject(updatedTask.subjectId); // Refresh list
+            QMessageBox::information(this, tr("成功"), tr("任务 '%1' 已更新。").arg(updatedTask.name));
+        } else {
+            QMessageBox::critical(this, tr("错误"), tr("无法更新任务。"));
+        }
+    }
+}
+
+void MainWindow::onDeleteTask() {
+    Task currentTask = getCurrentSelectedTask();
+    if (!currentTask.isValid()) {
+        QMessageBox::information(this, tr("删除任务"), tr("请先选择一个任务进行删除。"));
+        return;
+    }
+
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, tr("确认删除"),
+                                  tr("确定要删除任务 '%1' 吗？").arg(currentTask.name),
+                                  QMessageBox::Yes | QMessageBox::No);
+
+    if (reply == QMessageBox::Yes) {
+        if (DatabaseManager::instance().deleteTask(currentTask.id, m_currentUser.id)) {
+            loadTasksForSubject(currentTask.subjectId); // Refresh list
+            QMessageBox::information(this, tr("成功"), tr("任务 '%1' 已删除。").arg(currentTask.name));
+        } else {
+            QMessageBox::critical(this, tr("错误"), tr("无法删除任务 '%1'。").arg(currentTask.name));
+        }
+    }
+}
+
+void MainWindow::onChangeTaskStatus() {
+    // This is now handled by the context menu.
+    // If you want a button too, implement similar logic.
+    Task currentTask = getCurrentSelectedTask();
+    if (!currentTask.isValid()) {
+        QMessageBox::information(this, tr("更改状态"), tr("请选择一个任务。"));
+        return;
+    }
+    // Example: cycle status or open a small dialog/menu
+    // For now, rely on context menu
+    QMessageBox::information(this, tr("提示"), tr("请使用右键菜单更改任务状态。"));
+}
+
+
+// Remember to add calls to updateTaskActionButtons() in appropriate places,
+// e.g., after loading tasks, or when subject selection changes to an empty state.
+// ... (rest of MainWindow.cpp)
+
+
+// Time TM-003
+
+void MainWindow::setupTimerDockWidget() {
+    m_timerDockWidget = new QDockWidget(tr("学习计时器"), this);
+    m_timerDockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+    m_timerWidget = new TimerWidget(m_timerDockWidget);
+    m_timerDockWidget->setWidget(m_timerWidget);
+    addDockWidget(Qt::RightDockWidgetArea, m_timerDockWidget); // Add to right, for example
+
+    // Connect signal from timer widget if needed
+    connect(m_timerWidget, &TimerWidget::timerStoppedAndSaved, this, &MainWindow::onTimerLoggedNewEntry);
+
+    // Add to View menu
+    QMenu *viewMenu = menuBar()->findChild<QMenu*>("viewMenu"); // Assuming you have a view menu
+    if (!viewMenu) { // Or create if it doesn't exist
+        viewMenu = menuBar()->addMenu(tr("视图(&V)"));
+        viewMenu->setObjectName("viewMenu"); // Give it an object name to find it later
+    }
+    if (viewMenu) { // Check again
+        viewMenu->addSeparator();
+        viewMenu->addAction(m_timerDockWidget->toggleViewAction());
+    }
+}
+
+void MainWindow::onTimerLoggedNewEntry(const TimeLog& newLog) {
+    qDebug() << "MainWindow received new TimeLog ID:" << newLog.id;
+    // If the log was for a task, the task's actual time has been updated in DB.
+    // We need to refresh the task view if the timed task is currently visible.
+    Subject currentSubject = getCurrentSelectedSubject();
+    if (currentSubject.isValid() && (newLog.subjectId == currentSubject.id || newLog.subjectId == -1 /* general log */)) {
+        // If the log is related to the currently selected subject (or is general for the user)
+        // and the task is in the current subject view, refresh it.
+        // Check if newLog.taskId is in the current view
+        bool refreshNeeded = false;
+        if (newLog.taskId != -1) {
+            for(int i = 0; i < m_taskTableModel->rowCount(); ++i) {
+                if (m_taskTableModel->item(i,0)->data(Qt::UserRole).toInt() == newLog.taskId) {
+                    refreshNeeded = true;
+                    break;
+                }
+            }
+        }
+        if (refreshNeeded || newLog.taskId == -1) { // Refresh if task was in view or it was a subject-only log
+             loadTasksForSubject(currentSubject.id);
+        }
+    }
+}
+
+
+// Make sure to call m_timerWidget->refreshTargetSelection(); after any CRUD operation
+// on Subjects or Tasks that might affect the comboboxes in TimerWidget.
+// For example, in onAddSubject, onEditSubject, onDeleteSubject (after loadSubjectsForCurrentUser):
+// if (m_timerWidget) m_timerWidget->refreshTargetSelection();
+// And in onAddTask, onEditTask, onDeleteTask (after loadTasksForSubject):
+// if (m_timerWidget) m_timerWidget->refreshTargetSelection();

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TaskDialog</class>
+ <widget class="QDialog" name="TaskDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>480</width>
+    <height>450</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>任务详情</string>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="nameLabel">
+       <property name="text">
+        <string>任务名称(&amp;N):</string>
+       </property>
+       <property name="buddy">
+        <cstring>nameLineEdit</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="nameLineEdit"/>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="subjectLabel">
+       <property name="text">
+        <string>所属科目(&amp;S):</string>
+       </property>
+       <property name="buddy">
+        <cstring>subjectComboBox</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="subjectComboBox"/>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="descriptionLabel">
+       <property name="text">
+        <string>描述(&amp;D):</string>
+       </property>
+       <property name="buddy">
+        <cstring>descriptionTextEdit</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QPlainTextEdit" name="descriptionTextEdit">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>80</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="priorityLabel">
+       <property name="text">
+        <string>优先级(&amp;P):</string>
+       </property>
+       <property name="buddy">
+        <cstring>priorityComboBox</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QComboBox" name="priorityComboBox"/>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="dueDateLabel">
+       <property name="text">
+        <string>截止日期(&amp;U):</string>
+       </property>
+       <property name="buddy">
+        <cstring>dueDateTimeEdit</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QDateTimeEdit" name="dueDateTimeEdit">
+       <property name="calendarPopup">
+        <bool>true</bool>
+       </property>
+       <property name="displayFormat">
+        <string>yyyy-MM-dd HH:mm</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="estimatedTimeLabel">
+       <property name="text">
+        <string>预计用时(分钟)(&amp;E):</string>
+       </property>
+       <property name="buddy">
+        <cstring>estimatedTimeSpinBox</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QSpinBox" name="estimatedTimeSpinBox">
+       <property name="maximum">
+        <number>9999</number>
+       </property>
+       <property name="singleStep">
+        <number>15</number>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="statusLabelInfo">
+       <property name="text">
+        <string>状态(&amp;T):</string>
+       </property>
+       <property name="buddy">
+        <cstring>statusComboBox</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="QComboBox" name="statusComboBox"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="dialogStatusLabel">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>10</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Save</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>nameLineEdit</tabstop>
+  <tabstop>subjectComboBox</tabstop>
+  <tabstop>descriptionTextEdit</tabstop>
+  <tabstop>priorityComboBox</tabstop>
+  <tabstop>dueDateTimeEdit</tabstop>
+  <tabstop>estimatedTimeSpinBox</tabstop>
+  <tabstop>statusComboBox</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

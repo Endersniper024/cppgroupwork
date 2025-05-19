@@ -1,4 +1,5 @@
 #include "DatabaseManager.h"
+
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDebug>
@@ -49,7 +50,7 @@ bool DatabaseManager::openDatabase(const QString& path) {
         return false;
     }
     qDebug() << "Database opened successfully at:" << dbFilePath;
-    return initUserTable() && initSubjectTable();
+    return initUserTable() && initSubjectTable() && initTaskTable() && initTimeLogTable();
     // return initUserTable(); // 打开后立即初始化用户表
 }
 
@@ -363,3 +364,424 @@ bool DatabaseManager::subjectExists(const QString& name, int userId, int exclude
 // In DatabaseManager::openDatabase:
 // modify the return line:
 // return initUserTable() && initSubjectTable();
+
+
+
+//学科任务 TM-002
+
+bool DatabaseManager::initTaskTable() {
+    if (!m_db.isOpen()) {
+        qWarning() << "Database not open. Cannot init task table.";
+        return false;
+    }
+    QSqlQuery query(m_db);
+    // Note: ON DELETE CASCADE for subject_id will delete tasks if their parent subject is deleted.
+    QString createTableQuery = R"(
+        CREATE TABLE IF NOT EXISTS tasks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            subject_id INTEGER NOT NULL,
+            name TEXT NOT NULL,
+            description TEXT,
+            priority INTEGER DEFAULT 1, -- 0:Low, 1:Medium, 2:High
+            due_date TEXT,              -- ISO8601 format (YYYY-MM-DD HH:MM:SS)
+            estimated_time_minutes INTEGER DEFAULT 0,
+            actual_time_minutes INTEGER DEFAULT 0,
+            status INTEGER DEFAULT 0,   -- 0:Pending, 1:InProgress, 2:Completed
+            creation_date TEXT NOT NULL,
+            completion_date TEXT,       -- ISO8601 format or NULL
+            FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+            FOREIGN KEY (subject_id) REFERENCES subjects (id) ON DELETE CASCADE
+        );
+    )";
+    if (!query.exec(createTableQuery)) {
+        qWarning() << "Couldn't create the table 'tasks':" << query.lastError().text();
+        return false;
+    }
+    qDebug() << "Task table initialized or already exists.";
+    return true;
+}
+
+bool DatabaseManager::addTask(Task& task) {
+    if (!m_db.isOpen() || task.userId == -1 || task.subjectId == -1) return false;
+
+    QSqlQuery query(m_db);
+    query.prepare("INSERT INTO tasks (user_id, subject_id, name, description, priority, due_date, "
+                  "estimated_time_minutes, actual_time_minutes, status, creation_date, completion_date) "
+                  "VALUES (:user_id, :subject_id, :name, :description, :priority, :due_date, "
+                  ":estimated_time_minutes, :actual_time_minutes, :status, :creation_date, :completion_date)");
+
+    query.bindValue(":user_id", task.userId);
+    query.bindValue(":subject_id", task.subjectId);
+    query.bindValue(":name", task.name);
+    query.bindValue(":description", task.description);
+    query.bindValue(":priority", static_cast<int>(task.priority));
+    query.bindValue(":due_date", task.dueDate.isValid() ? task.dueDate.toString(Qt::ISODate) : QVariant(QMetaType(QMetaType::QString)));
+    query.bindValue(":estimated_time_minutes", task.estimatedTimeMinutes);
+    query.bindValue(":actual_time_minutes", task.actualTimeMinutes);
+    query.bindValue(":status", static_cast<int>(task.status));
+    query.bindValue(":creation_date", task.creationDate.toString(Qt::ISODate));
+    query.bindValue(":completion_date", task.completionDate.isValid() ? task.completionDate.toString(Qt::ISODate) : QVariant(QMetaType(QMetaType::QString)));
+
+    if (!query.exec()) {
+        qWarning() << "addTask failed:" << query.lastError().text();
+        return false;
+    }
+    task.id = query.lastInsertId().toInt();
+    return true;
+}
+
+Task DatabaseManager::getTaskById(int taskId, int userId) {
+    Task task;
+    if (!m_db.isOpen()) return task;
+
+    QSqlQuery query(m_db);
+    query.prepare("SELECT id, user_id, subject_id, name, description, priority, due_date, "
+                  "estimated_time_minutes, actual_time_minutes, status, creation_date, completion_date "
+                  "FROM tasks WHERE id = :id AND user_id = :user_id");
+    query.bindValue(":id", taskId);
+    query.bindValue(":user_id", userId);
+
+    if (query.exec() && query.next()) {
+        task.id = query.value("id").toInt();
+        task.userId = query.value("user_id").toInt();
+        task.subjectId = query.value("subject_id").toInt();
+        task.name = query.value("name").toString();
+        task.description = query.value("description").toString();
+        task.priority = static_cast<TaskPriority>(query.value("priority").toInt());
+        task.dueDate = QDateTime::fromString(query.value("due_date").toString(), Qt::ISODate);
+        task.estimatedTimeMinutes = query.value("estimated_time_minutes").toInt();
+        task.actualTimeMinutes = query.value("actual_time_minutes").toInt();
+        task.status = static_cast<TaskStatus>(query.value("status").toInt());
+        task.creationDate = QDateTime::fromString(query.value("creation_date").toString(), Qt::ISODate);
+        task.completionDate = QDateTime::fromString(query.value("completion_date").toString(), Qt::ISODate);
+    } else if (!query.isActive()) {
+        qWarning() << "getTaskById query failed:" << query.lastError().text();
+    }
+    return task;
+}
+
+QList<Task> DatabaseManager::getTasksBySubject(int subjectId, int userId, TaskStatus filterStatus, bool includeCompleted) {
+    QList<Task> tasks;
+    if (!m_db.isOpen() || userId == -1 || subjectId == -1) return tasks;
+
+    QString queryString = "SELECT id, user_id, subject_id, name, description, priority, due_date, "
+                          "estimated_time_minutes, actual_time_minutes, status, creation_date, completion_date "
+                          "FROM tasks WHERE subject_id = :subject_id AND user_id = :user_id";
+    
+    if (static_cast<int>(filterStatus) != -1) { // If a specific status filter is applied
+        queryString += " AND status = :status_filter";
+    } else if (!includeCompleted) { // If no specific status, and we don't want completed
+        queryString += QString(" AND status != %1").arg(static_cast<int>(TaskStatus::Completed));
+    }
+    queryString += " ORDER BY due_date ASC, priority DESC, name ASC";
+
+
+    QSqlQuery query(m_db);
+    query.prepare(queryString);
+    query.bindValue(":subject_id", subjectId);
+    query.bindValue(":user_id", userId);
+    if (static_cast<int>(filterStatus) != -1) {
+         query.bindValue(":status_filter", static_cast<int>(filterStatus));
+    }
+
+
+    if (query.exec()) {
+        while (query.next()) {
+            Task task;
+            task.id = query.value("id").toInt();
+            task.userId = query.value("user_id").toInt();
+            task.subjectId = query.value("subject_id").toInt();
+            task.name = query.value("name").toString();
+            task.description = query.value("description").toString();
+            task.priority = static_cast<TaskPriority>(query.value("priority").toInt());
+            task.dueDate = QDateTime::fromString(query.value("due_date").toString(), Qt::ISODate);
+            task.estimatedTimeMinutes = query.value("estimated_time_minutes").toInt();
+            task.actualTimeMinutes = query.value("actual_time_minutes").toInt();
+            task.status = static_cast<TaskStatus>(query.value("status").toInt());
+            task.creationDate = QDateTime::fromString(query.value("creation_date").toString(), Qt::ISODate);
+            task.completionDate = QDateTime::fromString(query.value("completion_date").toString(), Qt::ISODate);
+            tasks.append(task);
+        }
+    } else {
+        qWarning() << "getTasksBySubject query failed:" << query.lastError().text();
+    }
+    return tasks;
+}
+
+// Implementation for getTasksByUser can be similar, just without subject_id filter.
+QList<Task> DatabaseManager::getTasksByUser(int userId, TaskStatus filterStatus, bool includeCompleted) {
+    QList<Task> tasks;
+    if (!m_db.isOpen() || userId == -1) return tasks;
+
+    QString queryString = "SELECT id, user_id, subject_id, name, description, priority, due_date, "
+                          "estimated_time_minutes, actual_time_minutes, status, creation_date, completion_date "
+                          "FROM tasks WHERE user_id = :user_id";
+    
+    if (static_cast<int>(filterStatus) != -1) {
+        queryString += " AND status = :status_filter";
+    } else if (!includeCompleted) {
+        queryString += QString(" AND status != %1").arg(static_cast<int>(TaskStatus::Completed));
+    }
+    queryString += " ORDER BY due_date ASC, priority DESC, name ASC";
+
+    QSqlQuery query(m_db);
+    query.prepare(queryString);
+    query.bindValue(":user_id", userId);
+     if (static_cast<int>(filterStatus) != -1) {
+         query.bindValue(":status_filter", static_cast<int>(filterStatus));
+    }
+
+    if (query.exec()) {
+        while (query.next()) {
+            // ... (same data extraction logic as in getTasksBySubject)
+            Task task;
+            task.id = query.value("id").toInt();
+            task.userId = query.value("user_id").toInt();
+            task.subjectId = query.value("subject_id").toInt();
+            task.name = query.value("name").toString();
+            task.description = query.value("description").toString();
+            task.priority = static_cast<TaskPriority>(query.value("priority").toInt());
+            task.dueDate = QDateTime::fromString(query.value("due_date").toString(), Qt::ISODate);
+            task.estimatedTimeMinutes = query.value("estimated_time_minutes").toInt();
+            task.actualTimeMinutes = query.value("actual_time_minutes").toInt();
+            task.status = static_cast<TaskStatus>(query.value("status").toInt());
+            task.creationDate = QDateTime::fromString(query.value("creation_date").toString(), Qt::ISODate);
+            task.completionDate = QDateTime::fromString(query.value("completion_date").toString(), Qt::ISODate);
+            tasks.append(task);
+        }
+    } else {
+        qWarning() << "getTasksByUser query failed:" << query.lastError().text();
+    }
+    return tasks;
+}
+
+
+bool DatabaseManager::updateTask(const Task& task) {
+    if (!m_db.isOpen() || !task.isValid()) return false;
+
+    QSqlQuery query(m_db);
+    query.prepare("UPDATE tasks SET subject_id = :subject_id, name = :name, description = :description, "
+                  "priority = :priority, due_date = :due_date, estimated_time_minutes = :estimated_time_minutes, "
+                  "actual_time_minutes = :actual_time_minutes, status = :status, completion_date = :completion_date "
+                  "WHERE id = :id AND user_id = :user_id");
+
+    query.bindValue(":subject_id", task.subjectId);
+    query.bindValue(":name", task.name);
+    query.bindValue(":description", task.description);
+    query.bindValue(":priority", static_cast<int>(task.priority));
+    query.bindValue(":due_date", task.dueDate.isValid() ? task.dueDate.toString(Qt::ISODate) : QVariant(QVariant::String));
+    query.bindValue(":estimated_time_minutes", task.estimatedTimeMinutes);
+    query.bindValue(":actual_time_minutes", task.actualTimeMinutes);
+    query.bindValue(":status", static_cast<int>(task.status));
+    query.bindValue(":completion_date", (task.status == TaskStatus::Completed && task.completionDate.isValid()) ? task.completionDate.toString(Qt::ISODate) : QVariant(QMetaType(QMetaType::QString)));
+    query.bindValue(":id", task.id);
+    query.bindValue(":user_id", task.userId);
+
+    if (!query.exec()) {
+        qWarning() << "updateTask failed:" << query.lastError().text();
+        return false;
+    }
+    return query.numRowsAffected() > 0;
+}
+
+bool DatabaseManager::deleteTask(int taskId, int userId) {
+    if (!m_db.isOpen()) return false;
+
+    QSqlQuery query(m_db);
+    query.prepare("DELETE FROM tasks WHERE id = :id AND user_id = :user_id");
+    query.bindValue(":id", taskId);
+    query.bindValue(":user_id", userId);
+
+    if (!query.exec()) {
+        qWarning() << "deleteTask failed:" << query.lastError().text();
+        return false;
+    }
+    return query.numRowsAffected() > 0;
+}
+
+bool DatabaseManager::updateTaskStatus(int taskId, TaskStatus newStatus, int userId) {
+    if (!m_db.isOpen()) return false;
+
+    QSqlQuery query(m_db);
+    QString queryString = "UPDATE tasks SET status = :status";
+    if (newStatus == TaskStatus::Completed) {
+        queryString += ", completion_date = :completion_date";
+    } else {
+        // If moving away from completed, clear completion date
+        queryString += ", completion_date = NULL";
+    }
+    queryString += " WHERE id = :id AND user_id = :user_id";
+    
+    query.prepare(queryString);
+    query.bindValue(":status", static_cast<int>(newStatus));
+    if (newStatus == TaskStatus::Completed) {
+        query.bindValue(":completion_date", QDateTime::currentDateTime().toString(Qt::ISODate));
+    }
+    query.bindValue(":id", taskId);
+    query.bindValue(":user_id", userId);
+
+    if (!query.exec()) {
+        qWarning() << "updateTaskStatus failed:" << query.lastError().text();
+        return false;
+    }
+    return query.numRowsAffected() > 0;
+}
+
+bool DatabaseManager::incrementTaskActualTime(int taskId, int minutesToAdd, int userId) {
+    if (!m_db.isOpen()) return false;
+
+    QSqlQuery query(m_db);
+    query.prepare("UPDATE tasks SET actual_time_minutes = actual_time_minutes + :minutes_to_add "
+                  "WHERE id = :id AND user_id = :user_id");
+    query.bindValue(":minutes_to_add", minutesToAdd);
+    query.bindValue(":id", taskId);
+    query.bindValue(":user_id", userId);
+
+    if (!query.exec()) {
+        qWarning() << "incrementTaskActualTime failed:" << query.lastError().text();
+        return false;
+    }
+    return query.numRowsAffected() > 0;
+}
+
+// IMPORTANT: Make sure to call initTaskTable() when the database is opened.
+// In DatabaseManager::openDatabase, ensure the return line is:
+// return initUserTable() && initSubjectTable() && initTaskTable();
+
+
+
+bool DatabaseManager::initTimeLogTable() {
+    if (!m_db.isOpen()) {
+        qWarning() << "Database not open. Cannot init timelog table.";
+        return false;
+    }
+    QSqlQuery query(m_db);
+    QString createTableQuery = R"(
+        CREATE TABLE IF NOT EXISTS timelogs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            task_id INTEGER,          -- Nullable
+            subject_id INTEGER,       -- Nullable
+            start_time TEXT NOT NULL, -- ISO8601
+            end_time TEXT NOT NULL,   -- ISO8601
+            duration_minutes INTEGER NOT NULL,
+            notes TEXT,
+            is_pomodoro_session INTEGER DEFAULT 0, -- 0 for false, 1 for true
+            cycle_type INTEGER DEFAULT 0,          -- Corresponds to PomodoroCycleType enum
+            FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+            FOREIGN KEY (task_id) REFERENCES tasks (id) ON DELETE SET NULL, -- If task deleted, keep log but unlink
+            FOREIGN KEY (subject_id) REFERENCES subjects (id) ON DELETE SET NULL -- If subject deleted, keep log but unlink
+        );
+    )";
+    // Using ON DELETE SET NULL for task_id and subject_id means if a task/subject is deleted,
+    // the time log entry remains but is no longer associated with that specific task/subject.
+    // This preserves the historical time logged, even if the item it was logged against is removed.
+    // If you want to delete time logs when tasks/subjects are deleted, use ON DELETE CASCADE.
+
+    if (!query.exec(createTableQuery)) {
+        qWarning() << "Couldn't create the table 'timelogs':" << query.lastError().text();
+        return false;
+    }
+    qDebug() << "TimeLog table initialized or already exists.";
+    return true;
+}
+
+bool DatabaseManager::addTimeLog(TimeLog& timeLog) {
+    if (!m_db.isOpen() || timeLog.userId == -1) return false;
+
+    QSqlQuery query(m_db);
+    query.prepare("INSERT INTO timelogs (user_id, task_id, subject_id, start_time, end_time, "
+                  "duration_minutes, notes, is_pomodoro_session, cycle_type) "
+                  "VALUES (:user_id, :task_id, :subject_id, :start_time, :end_time, "
+                  ":duration_minutes, :notes, :is_pomodoro_session, :cycle_type)");
+
+    query.bindValue(":user_id", timeLog.userId);
+    query.bindValue(":task_id", timeLog.taskId == -1 ? QVariant(QVariant::Int) : timeLog.taskId); // Handle -1 as NULL
+    query.bindValue(":subject_id", timeLog.subjectId == -1 ? QVariant(QVariant::Int) : timeLog.subjectId); // Handle -1 as NULL
+    query.bindValue(":start_time", timeLog.startTime.toString(Qt::ISODate));
+    query.bindValue(":end_time", timeLog.endTime.toString(Qt::ISODate));
+    query.bindValue(":duration_minutes", timeLog.durationMinutes);
+    query.bindValue(":notes", timeLog.notes);
+    query.bindValue(":is_pomodoro_session", static_cast<int>(timeLog.isPomodoroSession));
+    query.bindValue(":cycle_type", static_cast<int>(timeLog.cycleType));
+
+    if (!query.exec()) {
+        qWarning() << "addTimeLog failed:" << query.lastError().text();
+        return false;
+    }
+    timeLog.id = query.lastInsertId().toInt();
+    return true;
+}
+
+
+// 任务时间记录 TM-003 TM-004
+// Implementations for getTimeLogsByUser, getTimeLogsByTask, getTimeLogsBySubject (for TM-004)
+// These will be similar to other get... methods, selecting from 'timelogs' table.
+// For now, let's add a basic getTimeLogsByUser for potential immediate use or testing.
+
+QList<TimeLog> DatabaseManager::getTimeLogsByUser(int userId, const QDateTime& fromDate, const QDateTime& toDate) {
+    QList<TimeLog> logs;
+    if (!m_db.isOpen() || userId == -1) return logs;
+
+    QString queryString = "SELECT id, user_id, task_id, subject_id, start_time, end_time, "
+                          "duration_minutes, notes, is_pomodoro_session, cycle_type "
+                          "FROM timelogs WHERE user_id = :user_id";
+    if (fromDate.isValid()) {
+        queryString += " AND end_time >= :from_date";
+    }
+    if (toDate.isValid()) {
+        queryString += " AND start_time <= :to_date";
+    }
+    queryString += " ORDER BY start_time DESC";
+
+    QSqlQuery query(m_db);
+    query.prepare(queryString);
+    query.bindValue(":user_id", userId);
+    if (fromDate.isValid()) {
+        query.bindValue(":from_date", fromDate.toString(Qt::ISODate));
+    }
+    if (toDate.isValid()) {
+        // For "to date", we usually want to include the whole day, so adjust if only date is given
+        QDateTime effectiveToDate = toDate;
+        if (toDate.time() == QTime(0,0,0)) { // If it's just a date (midnight)
+            effectiveToDate = QDateTime(toDate.date(), QTime(23,59,59));
+        }
+        query.bindValue(":to_date", effectiveToDate.toString(Qt::ISODate));
+    }
+
+
+    if (query.exec()) {
+        while (query.next()) {
+            TimeLog log;
+            log.id = query.value("id").toInt();
+            log.userId = query.value("user_id").toInt();
+            log.taskId = query.value("task_id").isNull() ? -1 : query.value("task_id").toInt();
+            log.subjectId = query.value("subject_id").isNull() ? -1 : query.value("subject_id").toInt();
+            log.startTime = QDateTime::fromString(query.value("start_time").toString(), Qt::ISODate);
+            log.endTime = QDateTime::fromString(query.value("end_time").toString(), Qt::ISODate);
+            log.durationMinutes = query.value("duration_minutes").toInt();
+            log.notes = query.value("notes").toString();
+            log.isPomodoroSession = query.value("is_pomodoro_session").toBool();
+            log.cycleType = static_cast<PomodoroCycleType>(query.value("cycle_type").toInt());
+            logs.append(log);
+        }
+    } else {
+        qWarning() << "getTimeLogsByUser query failed:" << query.lastError().text();
+    }
+    return logs;
+}
+
+// Minimal stubs for other getTimeLogs... for TM-004, to be fully implemented later
+QList<TimeLog> DatabaseManager::getTimeLogsByTask(int taskId, int userId) {
+    QList<TimeLog> logs; // TODO: Implement for TM-004
+    Q_UNUSED(taskId); Q_UNUSED(userId);
+    return logs;
+}
+QList<TimeLog> DatabaseManager::getTimeLogsBySubject(int subjectId, int userId) {
+    QList<TimeLog> logs; // TODO: Implement for TM-004
+    Q_UNUSED(subjectId); Q_UNUSED(userId);
+    return logs;
+}
+
+// IMPORTANT: Call initTimeLogTable() in DatabaseManager::openDatabase()
