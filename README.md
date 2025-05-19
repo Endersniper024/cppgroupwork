@@ -5,6 +5,30 @@
 **文档目的：** 本文档详细描述了协同学习时间管理平台的主要功能需求，作为项目开发、测试和用户手册的基础。
 
 
+# 项目目录（大致）
+
+```
+cppgroupwork/
+├── CMakeLists.txt                 # 项目构建配置文件
+├── src/
+│   ├── core/                      # 后端核心逻辑 (数据模型、数据库交互等)
+│   │   ├── User.h, User.cpp
+│   │   ├── DatabaseManager.h, DatabaseManager.cpp
+│   │   ├── Subject.h, Subject.cpp      // (后续添加)
+│   │   ├── Task.h, Task.cpp            // (后续添加)
+│   │   └── ...
+│   ├── gui/                       # 前端UI界面 (Qt窗口、对话框等)
+│   │   ├── MainWindow.h, MainWindow.cpp
+│   │   ├── LoginDialog.h, LoginDialog.cpp
+│   │   ├── ProfileDialog.h, ProfileDialog.cpp // (后续添加)
+│   │   └── ...
+│   ├── main.cpp                   # 程序入口
+│   └── AppContext.h, AppContext.cpp # (可选) 全局上下文或服务定位器
+├── data/                          # 数据文件 (如 SQLite 数据库)
+└── resources/                     # 资源文件 (如图标、qml文件等)
+    └── icons/
+```
+
 **2.1 用户管理模块**
 
 - 功能ID: UM-001
