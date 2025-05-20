@@ -773,11 +773,11 @@ void MainWindow::initializeReportComponents() {
 
     // Configure and instantiate LLMCommunicator
     // For a real app, use a more secure way or a dedicated settings dialog for API key
-    QSettings settings; // Uses organizationName and applicationName set in main.cpp
+    QSettings *settings = new QSettings(QStringLiteral("data/set.ini"), QSettings::IniFormat); // Uses organizationName and applicationName set in main.cpp
     
-    QString apiKey = settings.value("llm/apiKey").toString();
-    QString apiUrl = settings.value("llm/apiUrl", "https://generativelanguage.googleapis.com/v1beta/models/%1:generateContent?key=%2").toString(); // Default example
-    QString modelName = settings.value("llm/modelName", "gemini-2.0-flash").toString();
+    QString apiKey = settings->value("llm/apiKey").toString();
+    QString apiUrl = settings->value("llm/apiUrl", "https://generativelanguage.googleapis.com/v1beta/models/%1:generateContent?key=%2").toString(); // Default example
+    QString modelName = settings->value("llm/modelName", "gemini-2.0-flash").toString();
 
     if (apiKey.isEmpty() or apiKey.size() < 10) {
         // Prompt user or direct to settings if API key is essential for core LLM functionality
@@ -786,7 +786,7 @@ void MainWindow::initializeReportComponents() {
         apiKey = QInputDialog::getText(this, tr("LLM API Key"),
                                          tr("Please enter your LLM API Key (e.g., OpenAI):"), QLineEdit::Password, "", &ok);
         if (ok && !apiKey.isEmpty()) {
-            settings.setValue("llm/apiKey", apiKey);
+            settings->setValue("llm/apiKey", apiKey);
         } else {
              QMessageBox::warning(this, tr("LLM Configuration"), tr("LLM API Key not set. LLM-based analysis will be unavailable."));
         }
@@ -801,6 +801,8 @@ void MainWindow::initializeReportComponents() {
 
     connect(m_reportGenerator, &Core::Reports::ReportGenerator::reportReady, this, &MainWindow::handleReportDataReady);
     connect(m_reportGenerator, &Core::Reports::ReportGenerator::reportFailed, this, &MainWindow::handleReportDataError);
+
+    delete settings; // Clean up settings if not needed anymore
 }
 
 void MainWindow::cleanupReportComponents() {

@@ -5,6 +5,9 @@
 #include <QNetworkRequest>
 #include <QUrlQuery>
 #include <QDebug>
+#include <QInputDialog>
+#include <QMessageBox>
+#include <QSettings>
 
 #include "Core.h" // For Core::Reports namespace
 
@@ -49,16 +52,25 @@ namespace Core::Reports {
             "2. 主要的积极表现或成就；\n"
             "3. 需要改进的地方或可能存在的挑战；\n"
             "4. 2-3条具体可执行的建议。\n"
-            "5. 不要包含```json等代码标识符\n"
+            // "5. 不要包含```json等代码标识符\n"
             "请将你的回复格式化为一个JSON对象，包含以下字段：\"summary\"（总结，字符串）、\"positives\"（积极表现，字符串列表）、\"improvements\"（改进建议，字符串列表）、\"suggestions\"（可执行建议，字符串列表）。";
         return prompt;
     }
 
     void LLMCommunicator::requestInsights(const CalculatedMetrics& metrics, const AggregatedData& contextForLLM, int requestId) {
         if (m_apiKey.isEmpty() || m_apiUrl.isEmpty()) {
-            qWarning() << "LLM API key or URL not configured.";
-            emit insightsError(requestId, "LLM API not configured.");
-            return;
+            // qWarning() << "LLM API key or URL not configured.";
+            // emit insightsError(requestId, "LLM API not configured.");
+            // return;
+            QSettings settings("data/set.ini");
+            bool ok;
+            QString apiKey = QInputDialog::getText(nullptr, tr("LLM API Key"),
+                                            tr("Please enter your LLM API Key (e.g., OpenAI):"), QLineEdit::Password, "", &ok);
+            if (ok && !apiKey.isEmpty()) {
+                settings.setValue("llm/apiKey", apiKey);
+            } else {
+                QMessageBox::warning(nullptr, tr("LLM Configuration"), tr("LLM API Key not set. LLM-based analysis will be unavailable."));
+            }
         }
 
         QString prompt = buildPrompt(metrics, contextForLLM);
@@ -124,16 +136,25 @@ namespace Core::Reports {
 
             // Remove leading/trailing ```json and ```
             QByteArray cleanData = responseData.trimmed();
-            QByteArray prefix = "```json";
-            QByteArray suffix = "```";
-            if (cleanData.startsWith(prefix)) {
-                cleanData = cleanData.mid(prefix.size()).trimmed();
-            }
-            if (cleanData.endsWith(suffix)) {
-                cleanData.chop(suffix.size());
-                cleanData = cleanData.trimmed();
-            }
-            responseData = cleanData;
+            // QByteArray prefix = "```json";
+            // QByteArray suffix = "```";
+            // if (cleanData.startsWith(prefix)) {
+            //     cleanData = cleanData.mid(prefix.size()).trimmed();
+            // }
+            // if (cleanData.endsWith(suffix)) {
+            //     cleanData.chop(suffix.size());
+            //     cleanData = cleanData.trimmed();
+            // }
+            // If responseData contains a ```json ... ``` code block, extract only the code block content
+            // int startIdx = cleanData.indexOf("```json");
+            // if (startIdx != -1) {
+            //     startIdx += 9; // length of "```json"
+            //     int endIdx = cleanData.indexOf("```", startIdx);
+            //     if (endIdx != -1) {
+            //         cleanData = cleanData.mid(startIdx, endIdx - startIdx - 2).trimmed();
+            //     }
+            // }
+            // responseData = cleanData;
 
             qDebug() << "LLM Response for request ID" << requestId << ":" << QString::fromUtf8(responseData);
             insights.rawLLMResponse = QString::fromUtf8(responseData);
@@ -214,6 +235,19 @@ namespace Core::Reports {
                         QJsonArray parts = contentObj["parts"].toArray();
                         if(!parts.isEmpty() && parts.first().isObject() && parts.first().toObject().contains("text")) {
                             QString textContent = parts.first().toObject()["text"].toString();
+                            // Remove leading/trailing ```json and ```
+                            QString cleanData = textContent.trimmed();
+                            QByteArray prefix = "```json";
+                            QByteArray suffix = "```";
+                            if (cleanData.startsWith(prefix)) {
+                                cleanData = cleanData.mid(prefix.size()).trimmed();
+                            }
+                            if (cleanData.endsWith(suffix)) {
+                                cleanData.chop(suffix.size());
+                                cleanData = cleanData.trimmed();
+                            }
+                            textContent = cleanData;
+
                             QJsonDocument contentDoc = QJsonDocument::fromJson(textContent.toUtf8());
                             if (contentDoc.isObject()) {
                                 obj = contentDoc.object(); // Re-assign obj to the actual content JSON
