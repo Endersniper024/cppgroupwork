@@ -8,6 +8,19 @@
 #include "gui/TimerWidget.h" // Time 
 
 
+// === TM-006: Includes ===
+#include "core/reports/ReportGenerator.h"
+#include "core/reports/DataAggregator.h" // This must provide the full class definition, not just a forward declaration
+#include "core/reports/IDataAggregator.h" // Ensure this header contains the full class definition
+#include "core/reports/LLMCommunicator.h" // Concrete implementation for instantiation
+#include "core/reports/ReportParameters.h"
+#include "core/reports/ReportDataStructures.h"
+#include "gui/report/ReportSettingsDialog.h" // You'll need to create this dialog
+#include "gui/report/ReportDisplayDialog.h" // Include for ReportDisplayDialog
+// #include "core/reports/*" // Remove or comment out this line; it's not a valid header and may cause confusion
+// === End TM-006 Includes ===
+
+
 #include <QDockWidget>
 #include <QListWidget>
 #include <QVBoxLayout>
@@ -24,17 +37,38 @@
 #include <QStandardItemModel>
 #include <QHeaderView> // For table header properties
 #include <QMenu>       // For context menu on tasks
+#include <QSettings>   // For application settings (fixes QSettings not declared error)
 
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow) {
+    ui(new Ui::MainWindow) ,
+    m_dataAggregator(nullptr),
+    m_metricCalculator(nullptr),
+    m_llmCommunicator(nullptr),
+    m_reportGenerator(nullptr),
+    m_generateReportAction(nullptr)
+{
+    // qDebug() << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" ;
     ui->setupUi(this);
+    qDebug() << "1" ;
     setWindowTitle("协同学习时间管理平台");
+    qDebug() << "2" ;
     setupMenuBar();
+    qDebug() << "3" ;
     setupSubjectDockWidget(); // Add this call
+    qDebug() << "4" ;
     setupTaskView();
+    qDebug() << "5" ;
     setupTimerDockWidget();
+    qDebug() << "6" ;
+    initializeReportComponents(); // Initialize TM-006 components
+    m_activityMonitor = new ActivityMonitorService(this);
+    connect(m_activityMonitor, &ActivityMonitorService::timedSegmentLogged, this, &MainWindow::onAutoTimeSegmentLogged);
+    // connect(m_activityMonitor, &ActivityMonitorService::currentActivityUpdate, this, &MainWindow::onAutoActivityUpdate);
+
+
+    qDebug() << "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB" ;
 
 
     updateStatusBar();
@@ -42,9 +76,14 @@ MainWindow::MainWindow(QWidget *parent) :
     updateTaskActionButtons(); // Initial state for task buttons
     // 初始时，主窗口可以隐藏，直到登录成功
     // this->hide();
+
+    if (m_generateReportAction) {
+        m_generateReportAction->setEnabled(false);
+    }
 }
 
 MainWindow::~MainWindow() {
+    cleanupReportComponents(); // Cleanup TM-006 components
     delete ui;
 }
 
@@ -62,6 +101,22 @@ void MainWindow::setupMenuBar() {
     // 可以在这里添加更多菜单，如“任务管理”、“统计报告”等
     QMenu *taskMenu = menuBar()->addMenu("任务(&T)");
     // ... add task related actions ...
+
+
+    // === TM-006: Add Reports Menu ===
+    QMenu *reportsMenu = menuBar()->addMenu(tr("报告(&R)"));
+    m_generateReportAction = reportsMenu->addAction(tr("生成学习报告(&G)..."));
+    connect(m_generateReportAction, &QAction::triggered, this, &MainWindow::onGenerateReportActionTriggered);
+    // === End TM-006 Menu ===
+
+    // QMenu *viewMenu = menuBar()->findChild<QMenu*>("viewMenu"); // Find existing or create
+    // if (!viewMenu) {
+    //     viewMenu = menuBar()->addMenu(tr("视图(&V)"));
+    //     viewMenu->setObjectName("viewMenu");
+    // }
+    // if (m_subjectDockWidget) viewMenu->addAction(m_subjectDockWidget->toggleViewAction());
+    // if (m_timerDockWidget) viewMenu->addAction(m_timerDockWidget->toggleViewAction());
+    // Add toggle for WinAPI timer dock if it exists
 }
 
 // void MainWindow::setCurrentUser(const User& user) {
@@ -84,9 +139,11 @@ void MainWindow::setCurrentUser(const User& user) {
         qDebug() << "MainWindow: Current user set to" << m_currentUser.email;
         ui->welcomeLabel->setText(QString("欢迎您, %1!").arg(m_currentUser.nickname.isEmpty() ? m_currentUser.email : m_currentUser.nickname));
         loadSubjectsForCurrentUser(); // Load subjects when user changes
+        if (m_generateReportAction) m_generateReportAction->setEnabled(true);
     } else {
         ui->welcomeLabel->setText("未登录");
         m_subjectListWidget->clear(); // Clear subjects if no user
+        if (m_generateReportAction) m_generateReportAction->setEnabled(false);
         if (m_taskTableModel) m_taskTableModel->clear();
         if (m_timerWidget) m_timerWidget->refreshTargetSelection();
     }
@@ -693,3 +750,118 @@ void MainWindow::onTimerLoggedNewEntry(const TimeLog& newLog) {
 // if (m_timerWidget) m_timerWidget->refreshTargetSelection();
 // And in onAddTask, onEditTask, onDeleteTask (after loadTasksForSubject):
 // if (m_timerWidget) m_timerWidget->refreshTargetSelection();
+
+// Implementation of the missing slot for ActivityMonitorService::timedSegmentLogged
+void MainWindow::onAutoTimeSegmentLogged(const TimeLog& log) {
+    // You can refresh the UI or log the event as needed.
+    qDebug() << "Auto time segment logged:" << log.id;
+    // Optionally, refresh task/subject views if needed
+    // Example: reload tasks if log.taskId is valid and matches current subject
+    Subject currentSubject = getCurrentSelectedSubject();
+    if (currentSubject.isValid() && log.subjectId == currentSubject.id) {
+        loadTasksForSubject(currentSubject.id);
+    }
+}
+
+
+void MainWindow::initializeReportComponents() {
+    // Ensure DatabaseManager is accessible
+    DatabaseManager& dbManager = DatabaseManager::instance(); // Or this->m_dbManager
+
+    m_dataAggregator = new Core::Reports::DataAggregator();
+    m_metricCalculator = new Core::Reports::MetricCalculator();
+
+    // Configure and instantiate LLMCommunicator
+    // For a real app, use a more secure way or a dedicated settings dialog for API key
+    QSettings settings; // Uses organizationName and applicationName set in main.cpp
+    QString apiKey = settings.value("llm/apiKey", "AIzaSyAB2tziTcCVjF7abvzrXHcraSvoPDSTRE0").toString();
+    QString apiUrl = settings.value("llm/apiUrl", "https://generativelanguage.googleapis.com/v1beta/models/%1:generateContent?key=%2").toString(); // Default example
+    QString modelName = settings.value("llm/modelName", "gemini-2.0-flash").toString();
+
+    if (apiKey.isEmpty()) {
+        // Prompt user or direct to settings if API key is essential for core LLM functionality
+        // This is a simplified prompt for first-time setup. A proper settings dialog is better.
+        bool ok;
+        apiKey = QInputDialog::getText(this, tr("LLM API Key"),
+                                         tr("Please enter your LLM API Key (e.g., OpenAI):"), QLineEdit::Password, "", &ok);
+        if (ok && !apiKey.isEmpty()) {
+            settings.setValue("llm/apiKey", apiKey);
+        } else {
+             QMessageBox::warning(this, tr("LLM Configuration"), tr("LLM API Key not set. LLM-based analysis will be unavailable."));
+        }
+    }
+
+
+    auto concreteLlmComm = new Core::Reports::LLMCommunicator();
+    concreteLlmComm->configure(apiKey, apiUrl, modelName);
+    m_llmCommunicator = concreteLlmComm; // Store as interface type
+
+    m_reportGenerator = new Core::Reports::ReportGenerator(dbManager, *m_dataAggregator, *m_metricCalculator, *m_llmCommunicator, this);
+
+    connect(m_reportGenerator, &Core::Reports::ReportGenerator::reportReady, this, &MainWindow::handleReportDataReady);
+    connect(m_reportGenerator, &Core::Reports::ReportGenerator::reportFailed, this, &MainWindow::handleReportDataError);
+}
+
+void MainWindow::cleanupReportComponents() {
+    // Disconnect signals first if m_reportGenerator is deleted before this (though parent 'this' should handle it)
+    // if (m_reportGenerator) {
+    //    disconnect(m_reportGenerator, nullptr, this, nullptr);
+    // }
+    delete m_reportGenerator; // QObject parent system will delete children if ReportGenerator is parented
+    delete m_llmCommunicator;  // Or if concreteLlmComm was parented to this, it's handled.
+    delete m_metricCalculator;
+    delete m_dataAggregator;
+}
+
+
+
+
+// === TM-006: Report Generation Slot Implementations ===
+
+void MainWindow::onGenerateReportActionTriggered() {
+    if (!m_currentUser.isValid()) {
+        QMessageBox::warning(this, tr("未登录"), tr("请先登录以生成报告。"));
+        return;
+    }
+    if (!m_reportGenerator) {
+        QMessageBox::critical(this, tr("错误"), tr("报告生成组件未初始化。"));
+        return;
+    }
+
+    ReportSettingsDialog settingsDialog(m_currentUser, this); // You need to implement this dialog
+    // Pass current user's subjects to settingsDialog if it allows subject filtering
+    // settingsDialog.setSubjects(DatabaseManager::instance().getSubjectsByUser(m_currentUser.id));
+    
+    if (settingsDialog.exec() == QDialog::Accepted) {
+        Core::Reports::ReportParameters params = settingsDialog.getReportParameters();
+        params.userId = m_currentUser.id; // Ensure correct user ID
+
+        statusBar()->showMessage(tr("正在生成报告，请稍候..."));
+        if (m_generateReportAction) m_generateReportAction->setEnabled(false); // Prevent multiple clicks
+
+        m_reportGenerator->generateReportAsync(params);
+    }
+}
+
+void MainWindow::handleReportDataReady(const Core::Reports::LearningReport& report) {
+    statusBar()->clearMessage();
+    if (m_generateReportAction) m_generateReportAction->setEnabled(true);
+
+    if (report.hasError) {
+        QMessageBox::warning(this, tr("报告通知"), report.errorMessage.isEmpty() ? tr("报告已生成，但包含一些警告或无数据显示。") : report.errorMessage);
+    } else {
+         QMessageBox::information(this, tr("报告已生成"), tr("学习报告已成功生成！"));
+    }
+    
+    ReportDisplayDialog displayDialog(report, this);
+    displayDialog.exec();
+}
+
+void MainWindow::handleReportDataError(const QString& errorMessage) {
+    statusBar()->clearMessage();
+    if (m_generateReportAction) m_generateReportAction->setEnabled(true);
+    QMessageBox::critical(this, tr("报告生成失败"), errorMessage);
+}
+// === End TM-006 Slot Implementations ===
+
+// ... (Rest of MainWindow.cpp: onAddSubject, onEditTask, etc.)

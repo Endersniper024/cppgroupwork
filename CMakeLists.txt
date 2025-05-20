@@ -31,7 +31,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Qt Modules
-find_package(Qt6 COMPONENTS Core Gui Widgets Sql REQUIRED)
+find_package(Qt6 COMPONENTS Core Gui Widgets Sql Network REQUIRED)
 
 # For older Qt5
 # find_package(Qt5 COMPONENTS Core Gui Widgets Sql REQUIRED)
@@ -49,6 +49,12 @@ set(PROJECT_SOURCES
     src/core/Subject.cpp
     src/core/Task.cpp
     src/core/TimeLog.cpp
+    src/core/ActivityMonitorService.cpp
+
+    src/core/reports/DataAggregator.cpp
+    src/core/reports/LLMCommunicator.cpp
+    src/core/reports/MetricCalculator.cpp
+    src/core/reports/ReportGenerator.cpp
 
     src/gui/ProfileDialog.cpp
     src/gui/LoginDialog.cpp
@@ -56,6 +62,9 @@ set(PROJECT_SOURCES
     src/gui/SubjectDialog.cpp
     src/gui/TaskDialog.cpp
     src/gui/TimerWidget.cpp
+
+    src/gui/report/ReportDisplayDialog.cpp
+    src/gui/report/ReportSettingsDialog.cpp
     # Add more source files as they are created
 )
 
@@ -65,6 +74,18 @@ set(PROJECT_HEADERS
     src/core/Subject.h
     src/core/Task.h
     src/core/TimeLog.h
+    src/core/ActivityMonitorService.h
+    src/core/reports/Core.h
+
+    src/core/reports/DataAggregator.h
+    src/core/reports/IDataAggregator.h
+    src/core/reports/LLMCommunicator.h
+    src/core/reports/ILLMCommunicator.h
+    src/core/reports/MetricCalculator.h
+    src/core/reports/ReportDataStructures.h
+    src/core/reports/ReportEnums.h
+    src/core/reports/ReportGenerator.h
+    src/core/reports/ReportParameters.h
 
     src/gui/ui_ProfileDialog.h
     src/gui/ui_LoginDialog.h
@@ -75,6 +96,9 @@ set(PROJECT_HEADERS
     src/gui/SubjectDialog.h
     src/gui/TaskDialog.h
     src/gui/TimerWidget.h
+
+    src/gui/report/ReportDisplayDialog.h
+    src/gui/report/ReportSettingsDialog.h
     # Add more header files
 )
 
@@ -87,6 +111,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt6::Gui
     Qt6::Widgets
     Qt6::Sql
+    Qt6::Network
 )
 # For older Qt5
 # target_link_libraries(${PROJECT_NAME} PRIVATE
