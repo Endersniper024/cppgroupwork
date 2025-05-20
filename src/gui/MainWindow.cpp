@@ -779,7 +779,7 @@ void MainWindow::initializeReportComponents() {
     QString apiUrl = settings.value("llm/apiUrl", "https://generativelanguage.googleapis.com/v1beta/models/%1:generateContent?key=%2").toString(); // Default example
     QString modelName = settings.value("llm/modelName", "gemini-2.0-flash").toString();
 
-    if (apiKey.isEmpty()) {
+    if (apiKey.isEmpty() or apiKey.size() < 10) {
         // Prompt user or direct to settings if API key is essential for core LLM functionality
         // This is a simplified prompt for first-time setup. A proper settings dialog is better.
         bool ok;
