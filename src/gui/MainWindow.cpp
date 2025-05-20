@@ -774,7 +774,8 @@ void MainWindow::initializeReportComponents() {
     // Configure and instantiate LLMCommunicator
     // For a real app, use a more secure way or a dedicated settings dialog for API key
     QSettings settings; // Uses organizationName and applicationName set in main.cpp
-    QString apiKey = settings.value("llm/apiKey", "AIzaSyAB2tziTcCVjF7abvzrXHcraSvoPDSTRE0").toString();
+    
+    QString apiKey = settings.value("llm/apiKey").toString();
     QString apiUrl = settings.value("llm/apiUrl", "https://generativelanguage.googleapis.com/v1beta/models/%1:generateContent?key=%2").toString(); // Default example
     QString modelName = settings.value("llm/modelName", "gemini-2.0-flash").toString();
 
