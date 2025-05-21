@@ -38,6 +38,7 @@
 #include <QHeaderView> // For table header properties
 #include <QMenu>       // For context menu on tasks
 #include <QSettings>   // For application settings (fixes QSettings not declared error)
+#include <QScreen>     // For QScreen pointer usage
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -49,7 +50,20 @@ MainWindow::MainWindow(QWidget *parent) :
     m_reportGenerator(nullptr),
     m_generateReportAction(nullptr)
 {
-    // qDebug() << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" ;
+    // 设置全局字体变大，自适应分辨率
+    QFont appFont = qApp->font();
+    // 你可以根据屏幕分辨率动态调整字号
+    QScreen *screen = QGuiApplication::primaryScreen();
+    int dpi = screen ? int(screen->logicalDotsPerInch()) : 96;
+    int basePointSize = 13;
+    if (dpi > 120) {
+        basePointSize = 17;
+    } else if (dpi > 100) {
+        basePointSize = 15;
+    }
+    appFont.setPointSize(basePointSize);
+    qApp->setFont(appFont);
+
     ui->setupUi(this);
     qDebug() << "1" ;
     setWindowTitle("协同学习时间管理平台");
@@ -67,9 +81,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_activityMonitor, &ActivityMonitorService::timedSegmentLogged, this, &MainWindow::onAutoTimeSegmentLogged);
     // connect(m_activityMonitor, &ActivityMonitorService::currentActivityUpdate, this, &MainWindow::onAutoActivityUpdate);
 
-
     qDebug() << "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB" ;
-
 
     updateStatusBar();
     updateSubjectActionButtons(); // Initial Subject state
@@ -257,8 +269,11 @@ void MainWindow::setupSubjectDockWidget() {
     });
 
 
+    QFont listFont = m_subjectListWidget->font();
+    listFont.setPointSize(listFont.pointSize() + 10);
+    m_subjectListWidget->setFont(listFont);
     layout->addWidget(m_subjectListWidget);
-
+    // 设置科目列表区域字体，比全局字体大三号
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     m_addSubjectButton = new QPushButton(tr("添加"), dockContents);
     m_editSubjectButton = new QPushButton(tr("编辑"), dockContents);
@@ -278,8 +293,15 @@ void MainWindow::setupSubjectDockWidget() {
     addDockWidget(Qt::LeftDockWidgetArea, m_subjectDockWidget);
 
     // Example: Add a menu item to show/hide this dock widget
-    QMenu *viewMenu = menuBar()->addMenu(tr("视图(&V)"));
+    QMenu *viewMenu = menuBar()->findChild<QMenu*>("viewMenu");
+    if (!viewMenu) {
+        viewMenu = menuBar()->addMenu(tr("视图(&V)"));
+        viewMenu->setObjectName("viewMenu");
+    }
+    // else {
     viewMenu->addAction(m_subjectDockWidget->toggleViewAction());
+    // }
+    // QMenu *viewMenu = menuBar()->addMenu(tr("视图(&V)"));
 }
 
 void MainWindow::loadSubjectsForCurrentUser() {
