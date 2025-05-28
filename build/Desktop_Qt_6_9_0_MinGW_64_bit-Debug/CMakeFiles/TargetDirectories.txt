@@ -1,0 +1,5 @@
+D:/git_repos/cppgroupwork-2/build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug/CMakeFiles/cppgroupwork.dir
+D:/git_repos/cppgroupwork-2/build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug/CMakeFiles/edit_cache.dir
+D:/git_repos/cppgroupwork-2/build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug/CMakeFiles/rebuild_cache.dir
+D:/git_repos/cppgroupwork-2/build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug/CMakeFiles/cppgroupwork_autogen_timestamp_deps.dir
+D:/git_repos/cppgroupwork-2/build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug/CMakeFiles/cppgroupwork_autogen.dir

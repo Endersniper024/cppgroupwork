@@ -1,0 +1,122 @@
+[
+{
+  "directory": "D:/git_repos/cppgroupwork-2/build",
+  "command": "D:\\Qt\\Tools\\mingw1310_64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64 @CMakeFiles/cppgroupwork.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\cppgroupwork.dir\\cppgroupwork_autogen\\mocs_compilation.cpp.obj -c D:\\git_repos\\cppgroupwork-2\\build\\cppgroupwork_autogen\\mocs_compilation.cpp",
+  "file": "D:/git_repos/cppgroupwork-2/build/cppgroupwork_autogen/mocs_compilation.cpp",
+  "output": "CMakeFiles/cppgroupwork.dir/cppgroupwork_autogen/mocs_compilation.cpp.obj"
+},
+{
+  "directory": "D:/git_repos/cppgroupwork-2/build",
+  "command": "D:\\Qt\\Tools\\mingw1310_64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64 @CMakeFiles/cppgroupwork.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\cppgroupwork.dir\\src\\main.cpp.obj -c D:\\git_repos\\cppgroupwork-2\\src\\main.cpp",
+  "file": "D:/git_repos/cppgroupwork-2/src/main.cpp",
+  "output": "CMakeFiles/cppgroupwork.dir/src/main.cpp.obj"
+},
+{
+  "directory": "D:/git_repos/cppgroupwork-2/build",
+  "command": "D:\\Qt\\Tools\\mingw1310_64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64 @CMakeFiles/cppgroupwork.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\cppgroupwork.dir\\src\\core\\User.cpp.obj -c D:\\git_repos\\cppgroupwork-2\\src\\core\\User.cpp",
+  "file": "D:/git_repos/cppgroupwork-2/src/core/User.cpp",
+  "output": "CMakeFiles/cppgroupwork.dir/src/core/User.cpp.obj"
+},
+{
+  "directory": "D:/git_repos/cppgroupwork-2/build",
+  "command": "D:\\Qt\\Tools\\mingw1310_64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64 @CMakeFiles/cppgroupwork.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\cppgroupwork.dir\\src\\core\\DatabaseManager.cpp.obj -c D:\\git_repos\\cppgroupwork-2\\src\\core\\DatabaseManager.cpp",
+  "file": "D:/git_repos/cppgroupwork-2/src/core/DatabaseManager.cpp",
+  "output": "CMakeFiles/cppgroupwork.dir/src/core/DatabaseManager.cpp.obj"
+},
+{
+  "directory": "D:/git_repos/cppgroupwork-2/build",
+  "command": "D:\\Qt\\Tools\\mingw1310_64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64 @CMakeFiles/cppgroupwork.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\cppgroupwork.dir\\src\\core\\Subject.cpp.obj -c D:\\git_repos\\cppgroupwork-2\\src\\core\\Subject.cpp",
+  "file": "D:/git_repos/cppgroupwork-2/src/core/Subject.cpp",
+  "output": "CMakeFiles/cppgroupwork.dir/src/core/Subject.cpp.obj"
+},
+{
+  "directory": "D:/git_repos/cppgroupwork-2/build",
+  "command": "D:\\Qt\\Tools\\mingw1310_64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64 @CMakeFiles/cppgroupwork.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\cppgroupwork.dir\\src\\core\\Task.cpp.obj -c D:\\git_repos\\cppgroupwork-2\\src\\core\\Task.cpp",
+  "file": "D:/git_repos/cppgroupwork-2/src/core/Task.cpp",
+  "output": "CMakeFiles/cppgroupwork.dir/src/core/Task.cpp.obj"
+},
+{
+  "directory": "D:/git_repos/cppgroupwork-2/build",
+  "command": "D:\\Qt\\Tools\\mingw1310_64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64 @CMakeFiles/cppgroupwork.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\cppgroupwork.dir\\src\\core\\TimeLog.cpp.obj -c D:\\git_repos\\cppgroupwork-2\\src\\core\\TimeLog.cpp",
+  "file": "D:/git_repos/cppgroupwork-2/src/core/TimeLog.cpp",
+  "output": "CMakeFiles/cppgroupwork.dir/src/core/TimeLog.cpp.obj"
+},
+{
+  "directory": "D:/git_repos/cppgroupwork-2/build",
+  "command": "D:\\Qt\\Tools\\mingw1310_64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64 @CMakeFiles/cppgroupwork.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\cppgroupwork.dir\\src\\core\\ActivityMonitorService.cpp.obj -c D:\\git_repos\\cppgroupwork-2\\src\\core\\ActivityMonitorService.cpp",
+  "file": "D:/git_repos/cppgroupwork-2/src/core/ActivityMonitorService.cpp",
+  "output": "CMakeFiles/cppgroupwork.dir/src/core/ActivityMonitorService.cpp.obj"
+},
+{
+  "directory": "D:/git_repos/cppgroupwork-2/build",
+  "command": "D:\\Qt\\Tools\\mingw1310_64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64 @CMakeFiles/cppgroupwork.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\cppgroupwork.dir\\src\\core\\reports\\DataAggregator.cpp.obj -c D:\\git_repos\\cppgroupwork-2\\src\\core\\reports\\DataAggregator.cpp",
+  "file": "D:/git_repos/cppgroupwork-2/src/core/reports/DataAggregator.cpp",
+  "output": "CMakeFiles/cppgroupwork.dir/src/core/reports/DataAggregator.cpp.obj"
+},
+{
+  "directory": "D:/git_repos/cppgroupwork-2/build",
+  "command": "D:\\Qt\\Tools\\mingw1310_64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64 @CMakeFiles/cppgroupwork.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\cppgroupwork.dir\\src\\core\\reports\\LLMCommunicator.cpp.obj -c D:\\git_repos\\cppgroupwork-2\\src\\core\\reports\\LLMCommunicator.cpp",
+  "file": "D:/git_repos/cppgroupwork-2/src/core/reports/LLMCommunicator.cpp",
+  "output": "CMakeFiles/cppgroupwork.dir/src/core/reports/LLMCommunicator.cpp.obj"
+},
+{
+  "directory": "D:/git_repos/cppgroupwork-2/build",
+  "command": "D:\\Qt\\Tools\\mingw1310_64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64 @CMakeFiles/cppgroupwork.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\cppgroupwork.dir\\src\\core\\reports\\MetricCalculator.cpp.obj -c D:\\git_repos\\cppgroupwork-2\\src\\core\\reports\\MetricCalculator.cpp",
+  "file": "D:/git_repos/cppgroupwork-2/src/core/reports/MetricCalculator.cpp",
+  "output": "CMakeFiles/cppgroupwork.dir/src/core/reports/MetricCalculator.cpp.obj"
+},
+{
+  "directory": "D:/git_repos/cppgroupwork-2/build",
+  "command": "D:\\Qt\\Tools\\mingw1310_64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64 @CMakeFiles/cppgroupwork.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\cppgroupwork.dir\\src\\core\\reports\\ReportGenerator.cpp.obj -c D:\\git_repos\\cppgroupwork-2\\src\\core\\reports\\ReportGenerator.cpp",
+  "file": "D:/git_repos/cppgroupwork-2/src/core/reports/ReportGenerator.cpp",
+  "output": "CMakeFiles/cppgroupwork.dir/src/core/reports/ReportGenerator.cpp.obj"
+},
+{
+  "directory": "D:/git_repos/cppgroupwork-2/build",
+  "command": "D:\\Qt\\Tools\\mingw1310_64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64 @CMakeFiles/cppgroupwork.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\cppgroupwork.dir\\src\\gui\\ProfileDialog.cpp.obj -c D:\\git_repos\\cppgroupwork-2\\src\\gui\\ProfileDialog.cpp",
+  "file": "D:/git_repos/cppgroupwork-2/src/gui/ProfileDialog.cpp",
+  "output": "CMakeFiles/cppgroupwork.dir/src/gui/ProfileDialog.cpp.obj"
+},
+{
+  "directory": "D:/git_repos/cppgroupwork-2/build",
+  "command": "D:\\Qt\\Tools\\mingw1310_64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64 @CMakeFiles/cppgroupwork.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\cppgroupwork.dir\\src\\gui\\LoginDialog.cpp.obj -c D:\\git_repos\\cppgroupwork-2\\src\\gui\\LoginDialog.cpp",
+  "file": "D:/git_repos/cppgroupwork-2/src/gui/LoginDialog.cpp",
+  "output": "CMakeFiles/cppgroupwork.dir/src/gui/LoginDialog.cpp.obj"
+},
+{
+  "directory": "D:/git_repos/cppgroupwork-2/build",
+  "command": "D:\\Qt\\Tools\\mingw1310_64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64 @CMakeFiles/cppgroupwork.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\cppgroupwork.dir\\src\\gui\\MainWindow.cpp.obj -c D:\\git_repos\\cppgroupwork-2\\src\\gui\\MainWindow.cpp",
+  "file": "D:/git_repos/cppgroupwork-2/src/gui/MainWindow.cpp",
+  "output": "CMakeFiles/cppgroupwork.dir/src/gui/MainWindow.cpp.obj"
+},
+{
+  "directory": "D:/git_repos/cppgroupwork-2/build",
+  "command": "D:\\Qt\\Tools\\mingw1310_64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64 @CMakeFiles/cppgroupwork.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\cppgroupwork.dir\\src\\gui\\SubjectDialog.cpp.obj -c D:\\git_repos\\cppgroupwork-2\\src\\gui\\SubjectDialog.cpp",
+  "file": "D:/git_repos/cppgroupwork-2/src/gui/SubjectDialog.cpp",
+  "output": "CMakeFiles/cppgroupwork.dir/src/gui/SubjectDialog.cpp.obj"
+},
+{
+  "directory": "D:/git_repos/cppgroupwork-2/build",
+  "command": "D:\\Qt\\Tools\\mingw1310_64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64 @CMakeFiles/cppgroupwork.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\cppgroupwork.dir\\src\\gui\\TaskDialog.cpp.obj -c D:\\git_repos\\cppgroupwork-2\\src\\gui\\TaskDialog.cpp",
+  "file": "D:/git_repos/cppgroupwork-2/src/gui/TaskDialog.cpp",
+  "output": "CMakeFiles/cppgroupwork.dir/src/gui/TaskDialog.cpp.obj"
+},
+{
+  "directory": "D:/git_repos/cppgroupwork-2/build",
+  "command": "D:\\Qt\\Tools\\mingw1310_64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64 @CMakeFiles/cppgroupwork.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\cppgroupwork.dir\\src\\gui\\TimerWidget.cpp.obj -c D:\\git_repos\\cppgroupwork-2\\src\\gui\\TimerWidget.cpp",
+  "file": "D:/git_repos/cppgroupwork-2/src/gui/TimerWidget.cpp",
+  "output": "CMakeFiles/cppgroupwork.dir/src/gui/TimerWidget.cpp.obj"
+},
+{
+  "directory": "D:/git_repos/cppgroupwork-2/build",
+  "command": "D:\\Qt\\Tools\\mingw1310_64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64 @CMakeFiles/cppgroupwork.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\cppgroupwork.dir\\src\\gui\\report\\ReportDisplayDialog.cpp.obj -c D:\\git_repos\\cppgroupwork-2\\src\\gui\\report\\ReportDisplayDialog.cpp",
+  "file": "D:/git_repos/cppgroupwork-2/src/gui/report/ReportDisplayDialog.cpp",
+  "output": "CMakeFiles/cppgroupwork.dir/src/gui/report/ReportDisplayDialog.cpp.obj"
+},
+{
+  "directory": "D:/git_repos/cppgroupwork-2/build",
+  "command": "D:\\Qt\\Tools\\mingw1310_64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64 @CMakeFiles/cppgroupwork.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\cppgroupwork.dir\\src\\gui\\report\\ReportSettingsDialog.cpp.obj -c D:\\git_repos\\cppgroupwork-2\\src\\gui\\report\\ReportSettingsDialog.cpp",
+  "file": "D:/git_repos/cppgroupwork-2/src/gui/report/ReportSettingsDialog.cpp",
+  "output": "CMakeFiles/cppgroupwork.dir/src/gui/report/ReportSettingsDialog.cpp.obj"
+}
+]

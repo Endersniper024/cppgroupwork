@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16) # CMake install : https://cmake.org/download/
 project(cppgroupwork LANGUAGES CXX)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_PREFIX_PATH "d:/Qt/6.8.0/mingw_64") # Qt Kit Dir
+set(CMAKE_PREFIX_PATH "d:/Qt/6.9.0/mingw_64") # Qt Kit Dir
 # set(CMAKE_AUTOUIC ON)
 # set(CMAKE_AUTOMOC ON)
 # set(CMAKE_AUTORCC ON)
@@ -24,8 +24,8 @@ set(CMAKE_PREFIX_PATH "d:/Qt/6.8.0/mingw_64") # Qt Kit Dir
 # cmake_minimum_required(VERSION 3.16)
 # project(CollaborativeLearningTimeManager LANGUAGES CXX)
 
-set (CMAKE_C_COMPILER "D:\\MinGW\\bin\\gcc")
-set (CMAKE_CXX_COMPILER "D:\\MinGW\\bin\\g++")
+set(CMAKE_C_COMPILER "D:/Qt/Tools/mingw1310_64/bin/gcc.exe")
+set(CMAKE_CXX_COMPILER "D:/Qt/Tools/mingw1310_64/bin/g++.exe")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
