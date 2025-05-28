@@ -83,7 +83,10 @@ bool DatabaseManager::initUserTable() {
             email TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL,
             nickname TEXT,
-            avatar_path TEXT
+            avatar_path TEXT,
+            registration_date TEXT, -- Store as ISO8601 string
+            last_login_date TEXT,   -- Store as ISO8601 string
+            account_status INTEGER DEFAULT 0 -- 0: Active
         );
     )";
     if (!query.exec(createTableQuery)) {

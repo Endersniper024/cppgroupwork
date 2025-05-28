@@ -62,6 +62,7 @@ set(PROJECT_SOURCES
     src/gui/SubjectDialog.cpp
     src/gui/TaskDialog.cpp
     src/gui/TimerWidget.cpp
+    src/gui/RegisterDialog.cpp
 
     src/gui/report/ReportDisplayDialog.cpp
     src/gui/report/ReportSettingsDialog.cpp
@@ -96,6 +97,7 @@ set(PROJECT_HEADERS
     src/gui/SubjectDialog.h
     src/gui/TaskDialog.h
     src/gui/TimerWidget.h
+    src/gui/RegisterDialog.h
 
     src/gui/report/ReportDisplayDialog.h
     src/gui/report/ReportSettingsDialog.h

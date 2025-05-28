@@ -1,6 +1,8 @@
 #include "LoginDialog.h"
 #include "ui_LoginDialog.h" // 由 uic 生成
 #include "DatabaseManager.h"
+#include "RegisterDialog.h"
+
 #include <QMessageBox>
 #include <QDebug>
 
@@ -61,7 +63,16 @@ void LoginDialog::on_loginButton_clicked() {
 void LoginDialog::on_registerButton_clicked() {
     // UM-003 用户注册功能，这里暂时留空
     // 可以弹出一个新的注册对话框
-    QMessageBox::information(this, "注册", "注册功能尚未实现。");
+    // QMessageBox::information(this, "注册", "注册功能尚未实现。");
+    RegisterDialog regDialog(this);
+    if (regDialog.exec() == QDialog::Accepted) {
+        // Registration was successful
+        ui->emailLineEdit->setText(regDialog.getRegisteredEmail()); // Pre-fill email
+        ui->passwordLineEdit->clear();                              // Clear password field
+        ui->statusLabel->setText(tr("注册成功！请输入密码登录。"));
+        ui->statusLabel->setStyleSheet("color: green;"); // Optional: success color
+    }
+    // If rejected, do nothing, LoginDialog remains.
 }
 
 bool LoginDialog::setEmail(const QString& email) {

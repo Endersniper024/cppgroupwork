@@ -81,7 +81,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_activityMonitor, &ActivityMonitorService::timedSegmentLogged, this, &MainWindow::onAutoTimeSegmentLogged);
     // connect(m_activityMonitor, &ActivityMonitorService::currentActivityUpdate, this, &MainWindow::onAutoActivityUpdate);
 
-    qDebug() << "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB" ;
+    qDebug() << "7" ;
 
     updateStatusBar();
     updateSubjectActionButtons(); // Initial Subject state
