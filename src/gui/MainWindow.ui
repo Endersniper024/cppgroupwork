@@ -14,7 +14,8 @@
    <string>协同学习时间管理平台</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <!-- <layout class="QVBoxLayout" name="verticalLayout"> -->
+   <layout class="QVBoxLayout" name="mainContentLayout">
     <item>
      <widget class="QLabel" name="welcomeLabel">
       <property name="font">
