@@ -39,13 +39,13 @@
 			{
 				"command" : 0,
 				"file" : 0,
-				"line" : 106,
+				"line" : 109,
 				"parent" : 0
 			},
 			{
 				"command" : 1,
 				"file" : 0,
-				"line" : 109,
+				"line" : 112,
 				"parent" : 0
 			},
 			{
@@ -139,7 +139,7 @@
 			{
 				"command" : 5,
 				"file" : 0,
-				"line" : 125,
+				"line" : 121,
 				"parent" : 0
 			}
 		]
@@ -150,7 +150,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "-DQT_QML_DEBUG -g -std=gnu++17 -fdiagnostics-color=always"
+					"fragment" : "-g -std=gnu++17"
 				}
 			],
 			"defines" : 
@@ -207,14 +207,14 @@
 			"includes" : 
 			[
 				{
-					"path" : "D:/git_repos/cppgroupwork-2/build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug"
+					"path" : "D:/git_repos/cppgroupwork-2/build"
 				},
 				{
 					"path" : "D:/git_repos/cppgroupwork-2"
 				},
 				{
 					"backtrace" : 0,
-					"path" : "D:/git_repos/cppgroupwork-2/build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug/cppgroupwork_autogen/include"
+					"path" : "D:/git_repos/cppgroupwork-2/build/cppgroupwork_autogen/include"
 				},
 				{
 					"backtrace" : 20,
@@ -295,18 +295,19 @@
 				16,
 				17,
 				18,
-				19
+				19,
+				20
 			]
 		}
 	],
 	"dependencies" : 
 	[
 		{
-			"backtrace" : 0,
-			"id" : "cppgroupwork_autogen::@6890427a1f51a3e7e1df"
+			"id" : "cppgroupwork_autogen_timestamp_deps::@6890427a1f51a3e7e1df"
 		},
 		{
-			"id" : "cppgroupwork_autogen_timestamp_deps::@6890427a1f51a3e7e1df"
+			"backtrace" : 0,
+			"id" : "cppgroupwork_autogen::@6890427a1f51a3e7e1df"
 		}
 	],
 	"id" : "cppgroupwork::@6890427a1f51a3e7e1df",
@@ -315,11 +316,7 @@
 		"commandFragments" : 
 		[
 			{
-				"fragment" : "-DQT_QML_DEBUG -g",
-				"role" : "flags"
-			},
-			{
-				"fragment" : "",
+				"fragment" : "-g",
 				"role" : "flags"
 			},
 			{
@@ -421,14 +418,14 @@
 				16,
 				17,
 				18,
-				19
+				19,
+				20
 			]
 		},
 		{
 			"name" : "Header Files",
 			"sourceIndexes" : 
 			[
-				20,
 				21,
 				22,
 				23,
@@ -454,21 +451,23 @@
 				43,
 				44,
 				45,
-				46
+				46,
+				47,
+				48
 			]
 		},
 		{
 			"name" : "",
 			"sourceIndexes" : 
 			[
-				47
+				49
 			]
 		},
 		{
 			"name" : "CMake Rules",
 			"sourceIndexes" : 
 			[
-				48
+				50
 			]
 		}
 	],
@@ -478,7 +477,7 @@
 			"backtrace" : 0,
 			"compileGroupIndex" : 0,
 			"isGenerated" : true,
-			"path" : "build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug/cppgroupwork_autogen/mocs_compilation.cpp",
+			"path" : "build/cppgroupwork_autogen/mocs_compilation.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{
@@ -581,6 +580,12 @@
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "src/gui/TimerWidget.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/gui/RegisterDialog.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{
@@ -722,6 +727,11 @@
 		},
 		{
 			"backtrace" : 1,
+			"path" : "src/gui/RegisterDialog.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
 			"path" : "src/gui/report/ReportDisplayDialog.h",
 			"sourceGroupIndex" : 1
 		},
@@ -733,13 +743,13 @@
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug/cppgroupwork_autogen/timestamp",
+			"path" : "build/cppgroupwork_autogen/timestamp",
 			"sourceGroupIndex" : 2
 		},
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug/cppgroupwork_autogen/timestamp.rule",
+			"path" : "build/cppgroupwork_autogen/timestamp.rule",
 			"sourceGroupIndex" : 3
 		}
 	],

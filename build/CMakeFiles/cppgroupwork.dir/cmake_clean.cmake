@@ -27,6 +27,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/cppgroupwork.dir/src/gui/MainWindow.cpp.obj.d"
   "CMakeFiles/cppgroupwork.dir/src/gui/ProfileDialog.cpp.obj"
   "CMakeFiles/cppgroupwork.dir/src/gui/ProfileDialog.cpp.obj.d"
+  "CMakeFiles/cppgroupwork.dir/src/gui/RegisterDialog.cpp.obj"
+  "CMakeFiles/cppgroupwork.dir/src/gui/RegisterDialog.cpp.obj.d"
   "CMakeFiles/cppgroupwork.dir/src/gui/SubjectDialog.cpp.obj"
   "CMakeFiles/cppgroupwork.dir/src/gui/SubjectDialog.cpp.obj.d"
   "CMakeFiles/cppgroupwork.dir/src/gui/TaskDialog.cpp.obj"

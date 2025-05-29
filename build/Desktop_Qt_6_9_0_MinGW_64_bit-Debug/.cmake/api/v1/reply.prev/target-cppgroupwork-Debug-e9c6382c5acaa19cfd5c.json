@@ -150,7 +150,7 @@
 			"compileCommandFragments" : 
 			[
 				{
-					"fragment" : "-g -std=gnu++17"
+					"fragment" : "-DQT_QML_DEBUG -g -std=gnu++17 -fdiagnostics-color=always"
 				}
 			],
 			"defines" : 
@@ -207,14 +207,14 @@
 			"includes" : 
 			[
 				{
-					"path" : "D:/git_repos/cppgroupwork-2/build"
+					"path" : "D:/git_repos/cppgroupwork-2/build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug"
 				},
 				{
 					"path" : "D:/git_repos/cppgroupwork-2"
 				},
 				{
 					"backtrace" : 0,
-					"path" : "D:/git_repos/cppgroupwork-2/build/cppgroupwork_autogen/include"
+					"path" : "D:/git_repos/cppgroupwork-2/build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug/cppgroupwork_autogen/include"
 				},
 				{
 					"backtrace" : 20,
@@ -302,11 +302,11 @@
 	"dependencies" : 
 	[
 		{
-			"backtrace" : 0,
-			"id" : "cppgroupwork_autogen::@6890427a1f51a3e7e1df"
+			"id" : "cppgroupwork_autogen_timestamp_deps::@6890427a1f51a3e7e1df"
 		},
 		{
-			"id" : "cppgroupwork_autogen_timestamp_deps::@6890427a1f51a3e7e1df"
+			"backtrace" : 0,
+			"id" : "cppgroupwork_autogen::@6890427a1f51a3e7e1df"
 		}
 	],
 	"id" : "cppgroupwork::@6890427a1f51a3e7e1df",
@@ -315,7 +315,11 @@
 		"commandFragments" : 
 		[
 			{
-				"fragment" : "-g",
+				"fragment" : "-DQT_QML_DEBUG -g",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "",
 				"role" : "flags"
 			},
 			{
@@ -474,7 +478,7 @@
 			"backtrace" : 0,
 			"compileGroupIndex" : 0,
 			"isGenerated" : true,
-			"path" : "build/cppgroupwork_autogen/mocs_compilation.cpp",
+			"path" : "build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug/cppgroupwork_autogen/mocs_compilation.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{
@@ -729,13 +733,13 @@
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "build/cppgroupwork_autogen/timestamp",
+			"path" : "build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug/cppgroupwork_autogen/timestamp",
 			"sourceGroupIndex" : 2
 		},
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "build/cppgroupwork_autogen/timestamp.rule",
+			"path" : "build/Desktop_Qt_6_9_0_MinGW_64_bit-Debug/cppgroupwork_autogen/timestamp.rule",
 			"sourceGroupIndex" : 3
 		}
 	],

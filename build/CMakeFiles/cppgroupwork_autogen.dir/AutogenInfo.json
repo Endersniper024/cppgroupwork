@@ -524,6 +524,12 @@
 			null
 		],
 		[
+			"D:/git_repos/cppgroupwork-2/src/gui/RegisterDialog.h",
+			"MU",
+			"MXUWEOXILK/moc_RegisterDialog.cpp",
+			null
+		],
+		[
 			"D:/git_repos/cppgroupwork-2/src/gui/SubjectDialog.h",
 			"MU",
 			"MXUWEOXILK/moc_SubjectDialog.cpp",
@@ -688,6 +694,7 @@
 		[ "D:/git_repos/cppgroupwork-2/src/gui/LoginDialog.cpp", "MU", null ],
 		[ "D:/git_repos/cppgroupwork-2/src/gui/MainWindow.cpp", "MU", null ],
 		[ "D:/git_repos/cppgroupwork-2/src/gui/ProfileDialog.cpp", "MU", null ],
+		[ "D:/git_repos/cppgroupwork-2/src/gui/RegisterDialog.cpp", "MU", null ],
 		[ "D:/git_repos/cppgroupwork-2/src/gui/SubjectDialog.cpp", "MU", null ],
 		[ "D:/git_repos/cppgroupwork-2/src/gui/TaskDialog.cpp", "MU", null ],
 		[ "D:/git_repos/cppgroupwork-2/src/gui/TimerWidget.cpp", "MU", null ],

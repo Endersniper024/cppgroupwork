@@ -109,6 +109,12 @@
 },
 {
   "directory": "D:/git_repos/cppgroupwork-2/build",
+  "command": "D:\\Qt\\Tools\\mingw1310_64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64 @CMakeFiles/cppgroupwork.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\cppgroupwork.dir\\src\\gui\\RegisterDialog.cpp.obj -c D:\\git_repos\\cppgroupwork-2\\src\\gui\\RegisterDialog.cpp",
+  "file": "D:/git_repos/cppgroupwork-2/src/gui/RegisterDialog.cpp",
+  "output": "CMakeFiles/cppgroupwork.dir/src/gui/RegisterDialog.cpp.obj"
+},
+{
+  "directory": "D:/git_repos/cppgroupwork-2/build",
   "command": "D:\\Qt\\Tools\\mingw1310_64\\bin\\g++.exe -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN64 @CMakeFiles/cppgroupwork.dir/includes_CXX.rsp -g -std=gnu++17 -o CMakeFiles\\cppgroupwork.dir\\src\\gui\\report\\ReportDisplayDialog.cpp.obj -c D:\\git_repos\\cppgroupwork-2\\src\\gui\\report\\ReportDisplayDialog.cpp",
   "file": "D:/git_repos/cppgroupwork-2/src/gui/report/ReportDisplayDialog.cpp",
   "output": "CMakeFiles/cppgroupwork.dir/src/gui/report/ReportDisplayDialog.cpp.obj"

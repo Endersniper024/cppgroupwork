@@ -348,11 +348,26 @@ CMakeFiles/cppgroupwork.dir/src/gui/TimerWidget.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/cppgroupwork.dir/src/gui/TimerWidget.cpp.s"
 	D:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\git_repos\cppgroupwork-2\src\gui\TimerWidget.cpp -o CMakeFiles\cppgroupwork.dir\src\gui\TimerWidget.cpp.s
 
+CMakeFiles/cppgroupwork.dir/src/gui/RegisterDialog.cpp.obj: CMakeFiles/cppgroupwork.dir/flags.make
+CMakeFiles/cppgroupwork.dir/src/gui/RegisterDialog.cpp.obj: CMakeFiles/cppgroupwork.dir/includes_CXX.rsp
+CMakeFiles/cppgroupwork.dir/src/gui/RegisterDialog.cpp.obj: D:/git_repos/cppgroupwork-2/src/gui/RegisterDialog.cpp
+CMakeFiles/cppgroupwork.dir/src/gui/RegisterDialog.cpp.obj: CMakeFiles/cppgroupwork.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\git_repos\cppgroupwork-2\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_20) "Building CXX object CMakeFiles/cppgroupwork.dir/src/gui/RegisterDialog.cpp.obj"
+	D:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/cppgroupwork.dir/src/gui/RegisterDialog.cpp.obj -MF CMakeFiles\cppgroupwork.dir\src\gui\RegisterDialog.cpp.obj.d -o CMakeFiles\cppgroupwork.dir\src\gui\RegisterDialog.cpp.obj -c D:\git_repos\cppgroupwork-2\src\gui\RegisterDialog.cpp
+
+CMakeFiles/cppgroupwork.dir/src/gui/RegisterDialog.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/cppgroupwork.dir/src/gui/RegisterDialog.cpp.i"
+	D:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\git_repos\cppgroupwork-2\src\gui\RegisterDialog.cpp > CMakeFiles\cppgroupwork.dir\src\gui\RegisterDialog.cpp.i
+
+CMakeFiles/cppgroupwork.dir/src/gui/RegisterDialog.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/cppgroupwork.dir/src/gui/RegisterDialog.cpp.s"
+	D:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\git_repos\cppgroupwork-2\src\gui\RegisterDialog.cpp -o CMakeFiles\cppgroupwork.dir\src\gui\RegisterDialog.cpp.s
+
 CMakeFiles/cppgroupwork.dir/src/gui/report/ReportDisplayDialog.cpp.obj: CMakeFiles/cppgroupwork.dir/flags.make
 CMakeFiles/cppgroupwork.dir/src/gui/report/ReportDisplayDialog.cpp.obj: CMakeFiles/cppgroupwork.dir/includes_CXX.rsp
 CMakeFiles/cppgroupwork.dir/src/gui/report/ReportDisplayDialog.cpp.obj: D:/git_repos/cppgroupwork-2/src/gui/report/ReportDisplayDialog.cpp
 CMakeFiles/cppgroupwork.dir/src/gui/report/ReportDisplayDialog.cpp.obj: CMakeFiles/cppgroupwork.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\git_repos\cppgroupwork-2\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_20) "Building CXX object CMakeFiles/cppgroupwork.dir/src/gui/report/ReportDisplayDialog.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\git_repos\cppgroupwork-2\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_21) "Building CXX object CMakeFiles/cppgroupwork.dir/src/gui/report/ReportDisplayDialog.cpp.obj"
 	D:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/cppgroupwork.dir/src/gui/report/ReportDisplayDialog.cpp.obj -MF CMakeFiles\cppgroupwork.dir\src\gui\report\ReportDisplayDialog.cpp.obj.d -o CMakeFiles\cppgroupwork.dir\src\gui\report\ReportDisplayDialog.cpp.obj -c D:\git_repos\cppgroupwork-2\src\gui\report\ReportDisplayDialog.cpp
 
 CMakeFiles/cppgroupwork.dir/src/gui/report/ReportDisplayDialog.cpp.i: cmake_force
@@ -367,7 +382,7 @@ CMakeFiles/cppgroupwork.dir/src/gui/report/ReportSettingsDialog.cpp.obj: CMakeFi
 CMakeFiles/cppgroupwork.dir/src/gui/report/ReportSettingsDialog.cpp.obj: CMakeFiles/cppgroupwork.dir/includes_CXX.rsp
 CMakeFiles/cppgroupwork.dir/src/gui/report/ReportSettingsDialog.cpp.obj: D:/git_repos/cppgroupwork-2/src/gui/report/ReportSettingsDialog.cpp
 CMakeFiles/cppgroupwork.dir/src/gui/report/ReportSettingsDialog.cpp.obj: CMakeFiles/cppgroupwork.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\git_repos\cppgroupwork-2\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_21) "Building CXX object CMakeFiles/cppgroupwork.dir/src/gui/report/ReportSettingsDialog.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\git_repos\cppgroupwork-2\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_22) "Building CXX object CMakeFiles/cppgroupwork.dir/src/gui/report/ReportSettingsDialog.cpp.obj"
 	D:\Qt\Tools\mingw1310_64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/cppgroupwork.dir/src/gui/report/ReportSettingsDialog.cpp.obj -MF CMakeFiles\cppgroupwork.dir\src\gui\report\ReportSettingsDialog.cpp.obj.d -o CMakeFiles\cppgroupwork.dir\src\gui\report\ReportSettingsDialog.cpp.obj -c D:\git_repos\cppgroupwork-2\src\gui\report\ReportSettingsDialog.cpp
 
 CMakeFiles/cppgroupwork.dir/src/gui/report/ReportSettingsDialog.cpp.i: cmake_force
@@ -398,6 +413,7 @@ cppgroupwork_OBJECTS = \
 "CMakeFiles/cppgroupwork.dir/src/gui/SubjectDialog.cpp.obj" \
 "CMakeFiles/cppgroupwork.dir/src/gui/TaskDialog.cpp.obj" \
 "CMakeFiles/cppgroupwork.dir/src/gui/TimerWidget.cpp.obj" \
+"CMakeFiles/cppgroupwork.dir/src/gui/RegisterDialog.cpp.obj" \
 "CMakeFiles/cppgroupwork.dir/src/gui/report/ReportDisplayDialog.cpp.obj" \
 "CMakeFiles/cppgroupwork.dir/src/gui/report/ReportSettingsDialog.cpp.obj"
 
@@ -422,6 +438,7 @@ cppgroupwork.exe: CMakeFiles/cppgroupwork.dir/src/gui/MainWindow.cpp.obj
 cppgroupwork.exe: CMakeFiles/cppgroupwork.dir/src/gui/SubjectDialog.cpp.obj
 cppgroupwork.exe: CMakeFiles/cppgroupwork.dir/src/gui/TaskDialog.cpp.obj
 cppgroupwork.exe: CMakeFiles/cppgroupwork.dir/src/gui/TimerWidget.cpp.obj
+cppgroupwork.exe: CMakeFiles/cppgroupwork.dir/src/gui/RegisterDialog.cpp.obj
 cppgroupwork.exe: CMakeFiles/cppgroupwork.dir/src/gui/report/ReportDisplayDialog.cpp.obj
 cppgroupwork.exe: CMakeFiles/cppgroupwork.dir/src/gui/report/ReportSettingsDialog.cpp.obj
 cppgroupwork.exe: CMakeFiles/cppgroupwork.dir/build.make
@@ -433,7 +450,7 @@ cppgroupwork.exe: D:/Qt/6.9.0/mingw_64/lib/libQt6Core.a
 cppgroupwork.exe: CMakeFiles/cppgroupwork.dir/linkLibs.rsp
 cppgroupwork.exe: CMakeFiles/cppgroupwork.dir/objects1.rsp
 cppgroupwork.exe: CMakeFiles/cppgroupwork.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=D:\git_repos\cppgroupwork-2\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_22) "Linking CXX executable cppgroupwork.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=D:\git_repos\cppgroupwork-2\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_23) "Linking CXX executable cppgroupwork.exe"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\cppgroupwork.dir\link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

@@ -23,6 +23,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "D:/git_repos/cppgroupwork-2/src/gui/LoginDialog.cpp" "CMakeFiles/cppgroupwork.dir/src/gui/LoginDialog.cpp.obj" "gcc" "CMakeFiles/cppgroupwork.dir/src/gui/LoginDialog.cpp.obj.d"
   "D:/git_repos/cppgroupwork-2/src/gui/MainWindow.cpp" "CMakeFiles/cppgroupwork.dir/src/gui/MainWindow.cpp.obj" "gcc" "CMakeFiles/cppgroupwork.dir/src/gui/MainWindow.cpp.obj.d"
   "D:/git_repos/cppgroupwork-2/src/gui/ProfileDialog.cpp" "CMakeFiles/cppgroupwork.dir/src/gui/ProfileDialog.cpp.obj" "gcc" "CMakeFiles/cppgroupwork.dir/src/gui/ProfileDialog.cpp.obj.d"
+  "D:/git_repos/cppgroupwork-2/src/gui/RegisterDialog.cpp" "CMakeFiles/cppgroupwork.dir/src/gui/RegisterDialog.cpp.obj" "gcc" "CMakeFiles/cppgroupwork.dir/src/gui/RegisterDialog.cpp.obj.d"
   "D:/git_repos/cppgroupwork-2/src/gui/SubjectDialog.cpp" "CMakeFiles/cppgroupwork.dir/src/gui/SubjectDialog.cpp.obj" "gcc" "CMakeFiles/cppgroupwork.dir/src/gui/SubjectDialog.cpp.obj.d"
   "D:/git_repos/cppgroupwork-2/src/gui/TaskDialog.cpp" "CMakeFiles/cppgroupwork.dir/src/gui/TaskDialog.cpp.obj" "gcc" "CMakeFiles/cppgroupwork.dir/src/gui/TaskDialog.cpp.obj.d"
   "D:/git_repos/cppgroupwork-2/src/gui/TimerWidget.cpp" "CMakeFiles/cppgroupwork.dir/src/gui/TimerWidget.cpp.obj" "gcc" "CMakeFiles/cppgroupwork.dir/src/gui/TimerWidget.cpp.obj.d"

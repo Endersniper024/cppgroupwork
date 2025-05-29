@@ -6,6 +6,7 @@
 #include "MXUWEOXILK/moc_LoginDialog.cpp"
 #include "MXUWEOXILK/moc_MainWindow.cpp"
 #include "MXUWEOXILK/moc_ProfileDialog.cpp"
+#include "MXUWEOXILK/moc_RegisterDialog.cpp"
 #include "MXUWEOXILK/moc_SubjectDialog.cpp"
 #include "MXUWEOXILK/moc_TaskDialog.cpp"
 #include "MXUWEOXILK/moc_TimerWidget.cpp"

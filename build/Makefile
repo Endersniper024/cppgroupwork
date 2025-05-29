@@ -490,6 +490,30 @@ src/gui/ProfileDialog.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\cppgroupwork.dir\build.make CMakeFiles/cppgroupwork.dir/src/gui/ProfileDialog.cpp.s
 .PHONY : src/gui/ProfileDialog.cpp.s
 
+src/gui/RegisterDialog.obj: src/gui/RegisterDialog.cpp.obj
+.PHONY : src/gui/RegisterDialog.obj
+
+# target to build an object file
+src/gui/RegisterDialog.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\cppgroupwork.dir\build.make CMakeFiles/cppgroupwork.dir/src/gui/RegisterDialog.cpp.obj
+.PHONY : src/gui/RegisterDialog.cpp.obj
+
+src/gui/RegisterDialog.i: src/gui/RegisterDialog.cpp.i
+.PHONY : src/gui/RegisterDialog.i
+
+# target to preprocess a source file
+src/gui/RegisterDialog.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\cppgroupwork.dir\build.make CMakeFiles/cppgroupwork.dir/src/gui/RegisterDialog.cpp.i
+.PHONY : src/gui/RegisterDialog.cpp.i
+
+src/gui/RegisterDialog.s: src/gui/RegisterDialog.cpp.s
+.PHONY : src/gui/RegisterDialog.s
+
+# target to generate assembly for a file
+src/gui/RegisterDialog.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\cppgroupwork.dir\build.make CMakeFiles/cppgroupwork.dir/src/gui/RegisterDialog.cpp.s
+.PHONY : src/gui/RegisterDialog.cpp.s
+
 src/gui/SubjectDialog.obj: src/gui/SubjectDialog.cpp.obj
 .PHONY : src/gui/SubjectDialog.obj
 
@@ -687,6 +711,9 @@ help:
 	@echo ... src/gui/ProfileDialog.obj
 	@echo ... src/gui/ProfileDialog.i
 	@echo ... src/gui/ProfileDialog.s
+	@echo ... src/gui/RegisterDialog.obj
+	@echo ... src/gui/RegisterDialog.i
+	@echo ... src/gui/RegisterDialog.s
 	@echo ... src/gui/SubjectDialog.obj
 	@echo ... src/gui/SubjectDialog.i
 	@echo ... src/gui/SubjectDialog.s

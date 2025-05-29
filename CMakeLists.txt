@@ -62,6 +62,7 @@ set(PROJECT_SOURCES
     src/gui/SubjectDialog.cpp
     src/gui/TaskDialog.cpp
     src/gui/TimerWidget.cpp
+    src/gui/RegisterDialog.cpp 
 
     src/gui/report/ReportDisplayDialog.cpp
     src/gui/report/ReportSettingsDialog.cpp
@@ -96,11 +97,13 @@ set(PROJECT_HEADERS
     src/gui/SubjectDialog.h
     src/gui/TaskDialog.h
     src/gui/TimerWidget.h
+    src/gui/RegisterDialog.h
 
     src/gui/report/ReportDisplayDialog.h
     src/gui/report/ReportSettingsDialog.h
     # Add more header files
 )
+
 
 # Executable
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS})
@@ -113,13 +116,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt6::Sql
     Qt6::Network
 )
-# For older Qt5
-# target_link_libraries(${PROJECT_NAME} PRIVATE
-#     Qt5::Core
-#     Qt5::Gui
-#     Qt5::Widgets
-#     Qt5::Sql
-# )
 
 # Include directories
 target_include_directories(${PROJECT_NAME} PRIVATE
