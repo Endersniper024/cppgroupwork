@@ -1,3 +1,0 @@
-"D:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\cppgroupwork.dir/objects.a
-D:\Qt\Tools\mingw1310_64\bin\ar.exe qc CMakeFiles\cppgroupwork.dir/objects.a @CMakeFiles\cppgroupwork.dir\objects1.rsp
-D:\Qt\Tools\mingw1310_64\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\cppgroupwork.dir/objects.a -Wl,--no-whole-archive -o cppgroupwork.exe -Wl,--out-implib,libcppgroupwork.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\cppgroupwork.dir\linkLibs.rsp
