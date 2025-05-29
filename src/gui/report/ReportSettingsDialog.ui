@@ -87,14 +87,50 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="includeLLMCheckBox">
-     <property name="text">
-      <string>启用大模型智能分析(&amp;L)</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="llmModelLayout">
+     <item>
+      <widget class="QLabel" name="labelLlmModel">
+       <property name="text">
+        <string>智能分析模型(&amp;L):</string>
+       </property>
+       <property name="buddy">
+        <cstring>llmModelComboBox</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="llmModelComboBox">
+       <item>
+        <property name="text">
+         <string>Gemini</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Qwen</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>不采用大模型分析</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+        <spacer name="llmModelSpacer">
+            <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+                <size>
+                <width>40</width>
+                <height>20</height>
+                </size>
+            </property>
+        </spacer>
+     </item>
+    </layout>
    </item>
    <item>
     <spacer name="verticalSpacer_InputFields">
@@ -157,8 +193,7 @@
   <tabstop>periodComboBox</tabstop>
   <tabstop>startDateEdit</tabstop>
   <tabstop>endDateEdit</tabstop>
-  <tabstop>includeLLMCheckBox</tabstop>
-  <tabstop>buttonBox</tabstop>
+  <tabstop>llmModelComboBox</tabstop> <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
  <connections>

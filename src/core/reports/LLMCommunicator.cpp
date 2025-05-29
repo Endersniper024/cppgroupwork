@@ -78,8 +78,17 @@ namespace Core::Reports {
 
         // qDebug() << m_apiUrl;
         // Prepare the network request
-        QString new_Url = m_apiUrl.arg(m_modelName).arg(m_apiKey); // Example for Gemini
-        QNetworkRequest request(new_Url);
+        QNetworkRequest request(m_apiUrl);
+
+        if(m_apiUrl.contains("googleapis.com")) {
+            QString new_Url = m_apiUrl.arg(m_modelName).arg(m_apiKey); // Example for Gemini
+            request = QNetworkRequest(new_Url);
+        }
+        else if(m_apiUrl.contains("aliyuncs.com")) {
+            request.setRawHeader("Authorization", QByteArray("Bearer ") + m_apiKey.toUtf8());
+        }
+        // QString new_Url = m_apiUrl.arg(m_modelName).arg(m_apiKey); // Example for Gemini
+        // QNetworkRequest request(new_Url);
         request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
         
         // API Key handling depends on the specific LLM API
@@ -114,6 +123,21 @@ namespace Core::Reports {
             contentsArray.append(content);
             requestBody["contents"] = contentsArray;
             // Add generationConfig if needed (temperature, maxOutputTokens, etc.)
+        } else if (m_apiUrl.contains("aliyuncs.com")) {
+            qDebug() << "IN THE QWEN MODE";
+            requestBody["model"] = m_modelName.isEmpty() ? "qwen-plus" : m_modelName;
+            QJsonArray messages;
+            QJsonObject message;
+            message["role"] = "user";
+            message["content"] = prompt;
+            messages.append(message);
+            QJsonObject input;
+            input["messages"] = messages;
+            requestBody["input"] = input;
+            QJsonObject parameters;
+            parameters["result_format"] = "message";
+            requestBody["parameters"] = parameters;
+            // requestBody["temperature"] = 0.7;
         } else {
             qWarning() << "Unsupported LLM API URL structure for request body:" << m_apiUrl;
             // Default to a simple text prompt if API structure is unknown
@@ -197,6 +221,7 @@ namespace Core::Reports {
 
         // OpenAI specific parsing (chat completions)
         if (obj.contains("choices") && obj["choices"].isArray()) {
+            qDebug() << "OPENAI MODE";
             QJsonArray choices = obj["choices"].toArray();
             if (!choices.isEmpty() && choices.first().isObject()) {
                 QJsonObject firstChoice = choices.first().toObject();
@@ -205,6 +230,19 @@ namespace Core::Reports {
                     if (messageObj.contains("content") && messageObj["content"].isString()) {
                         QString contentStr = messageObj["content"].toString();
                         // The contentStr is expected to be a JSON string itself
+                        // 去除头尾
+                        QString cleanData = contentStr.trimmed();
+                        QByteArray prefix = "```json";
+                        QByteArray suffix = "```";
+                        if (cleanData.startsWith(prefix)) {
+                            cleanData = cleanData.mid(prefix.size()).trimmed();
+                        }
+                        if (cleanData.endsWith(suffix)) {
+                            cleanData.chop(suffix.size());
+                            cleanData = cleanData.trimmed();
+                        }
+                        contentStr = cleanData;
+                        
                         QJsonDocument contentDoc = QJsonDocument::fromJson(contentStr.toUtf8());
                         if (contentDoc.isObject()) {
                             obj = contentDoc.object(); // Re-assign obj to the actual content JSON
@@ -261,6 +299,51 @@ namespace Core::Reports {
                     } else { qWarning() << "LLM (Gemini) content object has no 'parts' array."; return insights;}
                 } else { qWarning() << "LLM (Gemini) first candidate has no 'content' object."; return insights;}
             } else { qWarning() << "LLM (Gemini) candidates array is empty or invalid."; return insights;}
+        } else if (obj.contains("output") && obj["output"].isObject()) { // Qwen API typical response
+            // QString outputStr = obj["output"].toString();
+            qDebug() << "Qwen API Mode";
+            QJsonObject output = obj["output"].toObject();
+            QJsonArray choices = output["choices"].toArray();
+            // Qwen's output is usually a JSON string, so parse it
+            if (!choices.isEmpty() && choices.first().isObject()) {
+                QJsonObject firstChoice = choices.first().toObject();
+                if (firstChoice.contains("message") && firstChoice["message"].isObject()) {
+                    QJsonObject messageObj = firstChoice["message"].toObject();
+                    if (messageObj.contains("content") && messageObj["content"].isString()) {
+                        QString contentStr = messageObj["content"].toString();
+                        // 去除头尾
+                        QString cleanData = contentStr.trimmed();
+                        QByteArray prefix = "```json";
+                        QByteArray suffix = "```";
+                        if (cleanData.startsWith(prefix)) {
+                            cleanData = cleanData.mid(prefix.size()).trimmed();
+                        }
+                        if (cleanData.endsWith(suffix)) {
+                            cleanData.chop(suffix.size());
+                            cleanData = cleanData.trimmed();
+                        }
+                        contentStr = cleanData;
+                        // The contentStr is expected to be a JSON string itself
+                        QJsonDocument contentDoc = QJsonDocument::fromJson(contentStr.toUtf8());
+                        if (contentDoc.isObject()) {
+                            obj = contentDoc.object(); // Re-assign obj to the actual content JSON
+                        } else {
+                            qWarning() << "LLM message content is not a JSON object string: " << contentStr;
+                            // Fallback: try to use contentStr directly if it's not JSON but seems like a summary
+                            insights.summary = contentStr; 
+                            // No detailed parsing possible if the inner content isn't the expected JSON
+                            success = !insights.summary.trimmed().isEmpty(); // Consider it a success if we got some text
+                            return insights;
+                        }
+                    } else {
+                        qWarning() << "LLM message object does not contain string 'content'."; return insights;
+                    }
+                } else {
+                    qWarning() << "LLM first choice does not contain object 'message'."; return insights;
+                }
+            }  else {
+                qWarning() << "LLM choices array is empty or first element is not an object."; return insights;
+            }
         }
         // Generic parsing based on the prompt's requested JSON structure
         if (obj.contains("summary") && obj["summary"].isString()) {

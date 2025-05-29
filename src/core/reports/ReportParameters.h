@@ -15,6 +15,7 @@ struct Core::Reports::ReportParameters {
     QList<int> filterSubjectIds; // Optional: empty means all subjects
     QList<int> filterTaskIds;    // Optional: empty means all tasks for selected subjects
     bool includeLLMAnalysis = true;
+    QString selectedLLMModel;
 };
 
 #endif // REPORTPARAMETERS_H

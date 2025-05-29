@@ -1068,14 +1068,16 @@ void MainWindow::initializeReportComponents() {
                     QSettings::IniFormat); // Uses organizationName and
                                            // applicationName set in main.cpp
 
-  QString apiKey = settings->value("llm/apiKey").toString();
-  QString apiUrl =
-      settings
-          ->value("llm/apiUrl", "https://generativelanguage.googleapis.com/"
-                                "v1beta/models/%1:generateContent?key=%2")
-          .toString(); // Default example
-  QString modelName =
-      settings->value("llm/modelName", "gemini-2.0-flash").toString();
+  QString apiKey = settings->value("llm_Qwen/apiKey").toString();
+  // QString apiUrl =
+  //     settings
+  //         ->value("llm/apiUrl", "https://generativelanguage.googleapis.com/"
+  //                               "v1beta/models/%1:generateContent?key=%2")
+  //         .toString(); // Default example
+  // QString modelName =
+  //     settings->value("llm/modelName", "gemini-2.0-flash").toString();
+  QString apiUrl = settings->value("llm_Qwen/apiUrl").toString();
+  QString modelName = settings->value("llm_Qwen/modelName").toString();
 
   if (apiKey.isEmpty() or apiKey.size() < 10) {
     // Prompt user or direct to settings if API key is essential for core LLM
@@ -1146,6 +1148,29 @@ void MainWindow::onGenerateReportActionTriggered() {
     Core::Reports::ReportParameters params =
         settingsDialog.getReportParameters();
     params.userId = m_currentUser.id; // Ensure correct user ID
+
+    if (params.selectedLLMModel == "Gemini") {
+      QSettings *settings =
+      new QSettings(QStringLiteral("data/set.ini"),
+                    QSettings::IniFormat); // Uses organizationName and
+                                           // applicationName set in main.cpp
+      QString apiKey = settings->value("llm_Gemini/apiKey").toString();
+      QString apiUrl = settings->value("llm_Gemini/apiUrl").toString();
+      QString modelName = settings->value("llm_Gemini/modelName").toString();
+      m_llmCommunicator->configure(apiKey, apiUrl, modelName);
+      delete settings;
+    }
+    else if(params.selectedLLMModel == "Qwen") {
+      QSettings *settings =
+      new QSettings(QStringLiteral("data/set.ini"),
+                    QSettings::IniFormat); // Uses organizationName and
+                                           // applicationName set in main.cpp
+      QString apiKey = settings->value("llm_Qwen/apiKey").toString();
+      QString apiUrl = settings->value("llm_Qwen/apiUrl").toString();
+      QString modelName = settings->value("llm_Qwen/modelName").toString();
+      m_llmCommunicator->configure(apiKey, apiUrl, modelName);
+      delete settings;
+    }
 
     statusBar()->showMessage(tr("正在生成报告，请稍候..."));
     if (m_generateReportAction)

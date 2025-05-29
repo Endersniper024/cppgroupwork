@@ -11,13 +11,13 @@
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QCheckBox>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QDateEdit>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QDialogButtonBox>
 #include <QtWidgets/QFormLayout>
 #include <QtWidgets/QGroupBox>
+#include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QVBoxLayout>
@@ -37,7 +37,10 @@ public:
     QDateEdit *startDateEdit;
     QLabel *labelEndDate;
     QDateEdit *endDateEdit;
-    QCheckBox *includeLLMCheckBox;
+    QHBoxLayout *llmModelLayout;
+    QLabel *labelLlmModel;
+    QComboBox *llmModelComboBox;
+    QSpacerItem *llmModelSpacer;
     QSpacerItem *verticalSpacer_InputFields;
     QLabel *statusLabel;
     QSpacerItem *verticalSpacer_Main;
@@ -96,11 +99,27 @@ public:
 
         verticalLayout->addWidget(customDateGroupBox);
 
-        includeLLMCheckBox = new QCheckBox(ReportSettingsDialog);
-        includeLLMCheckBox->setObjectName(QString::fromUtf8("includeLLMCheckBox"));
-        includeLLMCheckBox->setChecked(true);
+        llmModelLayout = new QHBoxLayout();
+        llmModelLayout->setObjectName(QString::fromUtf8("llmModelLayout"));
+        labelLlmModel = new QLabel(ReportSettingsDialog);
+        labelLlmModel->setObjectName(QString::fromUtf8("labelLlmModel"));
 
-        verticalLayout->addWidget(includeLLMCheckBox);
+        llmModelLayout->addWidget(labelLlmModel);
+
+        llmModelComboBox = new QComboBox(ReportSettingsDialog);
+        llmModelComboBox->addItem(QString());
+        llmModelComboBox->addItem(QString());
+        llmModelComboBox->addItem(QString());
+        llmModelComboBox->setObjectName(QString::fromUtf8("llmModelComboBox"));
+
+        llmModelLayout->addWidget(llmModelComboBox);
+
+        llmModelSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        llmModelLayout->addItem(llmModelSpacer);
+
+
+        verticalLayout->addLayout(llmModelLayout);
 
         verticalSpacer_InputFields = new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Minimum);
 
@@ -129,11 +148,12 @@ public:
         labelPeriod->setBuddy(periodComboBox);
         labelStartDate->setBuddy(startDateEdit);
         labelEndDate->setBuddy(endDateEdit);
+        labelLlmModel->setBuddy(llmModelComboBox);
 #endif // QT_CONFIG(shortcut)
         QWidget::setTabOrder(periodComboBox, startDateEdit);
         QWidget::setTabOrder(startDateEdit, endDateEdit);
-        QWidget::setTabOrder(endDateEdit, includeLLMCheckBox);
-        QWidget::setTabOrder(includeLLMCheckBox, buttonBox);
+        QWidget::setTabOrder(endDateEdit, llmModelComboBox);
+        QWidget::setTabOrder(llmModelComboBox, buttonBox);
 
         retranslateUi(ReportSettingsDialog);
         QObject::connect(buttonBox, SIGNAL(accepted()), ReportSettingsDialog, SLOT(accept()));
@@ -151,7 +171,11 @@ public:
         startDateEdit->setDisplayFormat(QCoreApplication::translate("ReportSettingsDialog", "yyyy-MM-dd", nullptr));
         labelEndDate->setText(QCoreApplication::translate("ReportSettingsDialog", "\347\273\223\346\235\237\346\227\245\346\234\237(&E):", nullptr));
         endDateEdit->setDisplayFormat(QCoreApplication::translate("ReportSettingsDialog", "yyyy-MM-dd", nullptr));
-        includeLLMCheckBox->setText(QCoreApplication::translate("ReportSettingsDialog", "\345\220\257\347\224\250\345\244\247\346\250\241\345\236\213\346\231\272\350\203\275\345\210\206\346\236\220(&L)", nullptr));
+        labelLlmModel->setText(QCoreApplication::translate("ReportSettingsDialog", "\346\231\272\350\203\275\345\210\206\346\236\220\346\250\241\345\236\213(&L):", nullptr));
+        llmModelComboBox->setItemText(0, QCoreApplication::translate("ReportSettingsDialog", "Gemini", nullptr));
+        llmModelComboBox->setItemText(1, QCoreApplication::translate("ReportSettingsDialog", "Qwen", nullptr));
+        llmModelComboBox->setItemText(2, QCoreApplication::translate("ReportSettingsDialog", "\344\270\215\351\207\207\347\224\250\345\244\247\346\250\241\345\236\213\345\210\206\346\236\220", nullptr));
+
         statusLabel->setText(QString());
     } // retranslateUi
 

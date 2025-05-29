@@ -174,6 +174,7 @@ private:
   Core::Reports::ReportGenerator *m_reportGenerator;
 
   QAction *m_generateReportAction; // To enable/disable during generation
+  // QAction *m_settingGenerateReport;
   // === End TM-006 Members ===
 
   // === TM-006: Helper ===

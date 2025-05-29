@@ -20,6 +20,10 @@ ReportSettingsDialog::ReportSettingsDialog(const User& currentUser, QWidget *par
         ui->periodComboBox->setCurrentIndex(0);
     }
 
+    int defaultLlmIndex = ui->llmModelComboBox->findText(tr("不采用大模型分析"));
+    if (defaultLlmIndex != -1) {
+        ui->llmModelComboBox->setCurrentIndex(defaultLlmIndex);
+    }
 
     connect(ui->periodComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &ReportSettingsDialog::onPeriodComboBoxChanged);
@@ -116,7 +120,17 @@ Core::Reports::ReportParameters ReportSettingsDialog::getReportParameters() cons
     }
 
 
-    params.includeLLMAnalysis = ui->includeLLMCheckBox->isChecked();
+    // params.includeLLMAnalysis = ui->includeLLMCheckBox->isChecked();
+    int llmIndex = ui->llmModelComboBox->currentIndex();
+    QString selectedLLM = ui->llmModelComboBox->itemText(llmIndex);
+
+    if (selectedLLM == tr("不采用大模型分析")) {
+        params.includeLLMAnalysis = false;
+        params.selectedLLMModel = ""; // 假设 ReportParameters 有此成员
+    } else {
+        params.includeLLMAnalysis = true;
+        params.selectedLLMModel = selectedLLM; // 假设 ReportParameters 有此成员
+    }
     // params.filterSubjectIds; // Implement if subject filter list is added
     return params;
 }
