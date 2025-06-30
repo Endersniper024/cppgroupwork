@@ -2,10 +2,15 @@
 #include "DatabaseManager.h"
 #include "LoginDialog.h"   // 需要包含 LoginDialog 以便可以重新显示
 #include "ProfileDialog.h" // (后续添加)
-#include "gui/SubjectDialog.h" // For opening the subject dialog
-#include "gui/TaskDialog.h"    // For task management
-#include "gui/TimerWidget.h"   // Time
-#include "ui_MainWindow.h"     // 由 uic 生成
+#include "core/ProcessMonitorService.h"    // 程序监控服务
+#include "gui/ProcessLinkSettingsDialog.h" // 004-程序关联设置对话框
+#include "gui/SubjectDialog.h"             // For opening the subject dialog
+#include "gui/TaskDialog.h"                // For task management
+#include "gui/TimerWidget.h"               // Time
+#include "ui_MainWindow.h"                 // 由 uic 生成
+
+#include <QPainter>
+#include <QPixmap>
 
 // === TM-006: Includes ===
 #include "core/reports/DataAggregator.h" // This must provide the full class definition, not just a forward declaration
@@ -79,6 +84,14 @@ MainWindow::MainWindow(QWidget *parent)
 
   ui->setupUi(this);
   qDebug() << "1";
+
+  // 001-设置任务栏图标（闹钟样式）
+  setupApplicationIcon();
+
+  // 002-设置任务栏独立空间（最小化时仍然存在）
+  setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+  setAttribute(Qt::WA_ShowWithoutActivating, false); // 确保窗口可以获得焦点
+
   setWindowTitle("协同学习时间管理平台");
   qDebug() << "2";
   setupMenuBar();
@@ -87,12 +100,23 @@ MainWindow::MainWindow(QWidget *parent)
   qDebug() << "4";
   setupTaskView();
   qDebug() << "5";
+
+  // 初始化程序监控服务 (需要在 setupTimerDockWidget 之前)
+  m_processMonitorService = new ProcessMonitorService(m_currentUser.id, this);
+  connect(m_processMonitorService, &ProcessMonitorService::processStarted, this,
+          &MainWindow::onProcessMonitorStarted);
+  connect(m_processMonitorService, &ProcessMonitorService::processStopped, this,
+          &MainWindow::onProcessMonitorStopped);
+  connect(m_processMonitorService, &ProcessMonitorService::timeRecorded, this,
+          &MainWindow::onProcessTimeRecorded);
+
   setupTimerDockWidget();
   qDebug() << "6";
   initializeReportComponents(); // Initialize TM-006 components
   m_activityMonitor = new ActivityMonitorService(this);
   connect(m_activityMonitor, &ActivityMonitorService::timedSegmentLogged, this,
           &MainWindow::onAutoTimeSegmentLogged);
+
   // connect(m_activityMonitor, &ActivityMonitorService::currentActivityUpdate,
   // this, &MainWindow::onAutoActivityUpdate);
 
@@ -171,7 +195,13 @@ void MainWindow::setupMenuBar() {
 
   // 可以在这里添加更多菜单，如“任务管理”、“统计报告”等
   QMenu *taskMenu = menuBar()->addMenu("任务(&T)");
-  // ... add task related actions ...
+  QAction *addTaskAction = taskMenu->addAction("添加任务(&A)...");
+  QAction *processLinkAction =
+      taskMenu->addAction("程序关联设置(&P)..."); // 004-关联程序功能
+
+  connect(addTaskAction, &QAction::triggered, this, &MainWindow::onAddTask);
+  connect(processLinkAction, &QAction::triggered, this,
+          &MainWindow::onProcessLinkSettings);
 
   // === TM-006: Add Reports Menu ===
   QMenu *reportsMenu = menuBar()->addMenu(tr("报告(&R)"));
@@ -254,6 +284,15 @@ void MainWindow::setCurrentUser(const User &user) {
 
   if (m_timerWidget)
     m_timerWidget->setCurrentUser(m_currentUser); // Pass user to timer
+
+  // Update ProcessMonitorService user
+  if (m_processMonitorService) {
+    m_processMonitorService->setUserId(m_currentUser.id);
+    // Connect to TimerWidget if not already connected
+    if (m_timerWidget) {
+      m_timerWidget->setProcessMonitorService(m_processMonitorService);
+    }
+  }
 
   if (m_currentUser.isValid()) {
     qDebug() << "MainWindow: Current user set to" << m_currentUser.email;
@@ -960,6 +999,54 @@ void MainWindow::onChangeTaskStatus() {
                            tr("请使用右键菜单更改任务状态。"));
 }
 
+// 004-程序关联设置
+void MainWindow::onProcessLinkSettings() {
+  Task currentTask = getCurrentSelectedTask();
+  if (!currentTask.isValid()) {
+    QMessageBox::information(this, tr("程序关联设置"),
+                             tr("请先选择一个任务来设置程序关联。"));
+    return;
+  }
+
+  ProcessLinkSettingsDialog dialog(this);
+  dialog.setCurrentTask(currentTask);
+
+  if (dialog.exec() == QDialog::Accepted) {
+    ProcessLinkSettingsDialog::ProcessLinkSettings settings =
+        dialog.getLinkSettings();
+
+    // 保存到数据库
+    ProcessLink link;
+    link.taskId = settings.taskId;
+    link.userId = m_currentUser.id;
+    link.processName = settings.processName;
+    link.displayName = settings.displayName;
+    link.autoStart = settings.autoStart;
+    link.autoStop = settings.autoStop;
+    link.creationDate = QDateTime::currentDateTime();
+    link.isActive = true;
+
+    if (DatabaseManager::instance().addProcessLink(link)) {
+      // 刷新程序监控服务
+      if (m_processMonitorService) {
+        m_processMonitorService->refreshProcessLinks();
+        if (!m_processMonitorService->isMonitoring()) {
+          m_processMonitorService->startMonitoring();
+        }
+      }
+
+      QMessageBox::information(this, tr("设置完成"),
+                               tr("已成功将任务 '%1' 关联到程序 '%2'。\n"
+                                  "系统将自动监控该程序的运行时间。")
+                                   .arg(currentTask.name)
+                                   .arg(settings.displayName));
+    } else {
+      QMessageBox::critical(this, tr("保存失败"),
+                            tr("无法保存程序关联设置到数据库。"));
+    }
+  }
+}
+
 // Remember to add calls to updateTaskActionButtons() in appropriate places,
 // e.g., after loading tasks, or when subject selection changes to an empty
 // state.
@@ -980,6 +1067,11 @@ void MainWindow::setupTimerDockWidget() {
   // Connect signal from timer widget if needed
   connect(m_timerWidget, &TimerWidget::timerStoppedAndSaved, this,
           &MainWindow::onTimerLoggedNewEntry);
+
+  // Connect ProcessMonitorService to TimerWidget
+  if (m_processMonitorService) {
+    m_timerWidget->setProcessMonitorService(m_processMonitorService);
+  }
 
   // Add to View menu
   QMenu *viewMenu = menuBar()->findChild<QMenu *>(
@@ -1081,6 +1173,7 @@ void MainWindow::initializeReportComponents() {
 
   auto concreteLlmComm = new Core::Reports::LLMCommunicator();
   concreteLlmComm->setUserId(m_currentUser.id); // 设置当前用户ID
+  concreteLlmComm->setParentWidget(this);       // 设置父窗口为MainWindow
   concreteLlmComm->configure(apiKey, apiUrl, modelName);
   m_llmCommunicator = concreteLlmComm; // Store as interface type
 
@@ -1234,13 +1327,56 @@ void MainWindow::setupFloatingToolbar() {
   QScreen *screen = QApplication::primaryScreen();
   QRect screenGeometry = screen->geometry();
 
-  int toolbarHeight = 80;
+  int toolbarHeight = 80; // 进一步减小高度，因为只有一行按钮了
   m_floatingToolbar->setFixedSize(screenGeometry.width(), toolbarHeight);
   m_floatingToolbar->move(0, 0);
 
-  // 创建工具栏内容
-  QHBoxLayout *layout = new QHBoxLayout(m_floatingToolbar);
-  layout->setContentsMargins(10, 5, 10, 5);
+  // 创建主布局（垂直）
+  QVBoxLayout *mainLayout = new QVBoxLayout(m_floatingToolbar);
+  mainLayout->setContentsMargins(15, 5, 15, 5); // 减小边距
+  mainLayout->setSpacing(5);                    // 减小间距
+
+  // 003-3 顶端栏时间显示
+  m_timeLabel = new QLabel(m_floatingToolbar);
+  m_timeLabel->setAlignment(Qt::AlignCenter);
+  m_timeLabel->setStyleSheet(
+      "QLabel { color: white; font-size: 14px; font-weight: bold; }");
+  updateTimeDisplay(); // 初始化时间显示
+
+  // 启动时间更新定时器
+  m_timeUpdateTimer = new QTimer(this);
+  connect(m_timeUpdateTimer, &QTimer::timeout, this,
+          &MainWindow::updateTimeDisplay);
+  m_timeUpdateTimer->start(1000); // 每秒更新一次
+
+  // 003-2 固定选项
+  m_pinButton = new QPushButton(tr("📌 固定"), m_floatingToolbar);
+  m_pinButton->setCheckable(true);
+  m_pinButton->setFixedSize(60, 24); // 缩小按钮大小
+  m_pinButton->setStyleSheet(R"(
+    QPushButton {
+        background-color: rgba(76, 175, 80, 0.8);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 10px;
+        font-weight: bold;
+        padding: 2px;
+    }
+    QPushButton:checked {
+        background-color: rgba(255, 152, 0, 0.9);
+    }
+    QPushButton:hover {
+        background-color: rgba(76, 175, 80, 1.0);
+    }
+  )");
+
+  connect(m_pinButton, &QPushButton::toggled, this, &MainWindow::onPinToggled);
+
+  // 创建工具栏内容布局
+  QHBoxLayout *toolLayout = new QHBoxLayout();
+  toolLayout->setContentsMargins(6, 4, 6, 4); // 减小内容边距
+  toolLayout->setSpacing(8);                  // 适中的按钮间距
 
   // 添加快速操作按钮
   QPushButton *quickAddSubjectBtn =
@@ -1270,34 +1406,40 @@ void MainWindow::setupFloatingToolbar() {
   QLabel *userLabel = new QLabel(m_floatingToolbar);
   userLabel->setObjectName("floatingUserLabel");
 
-  // 布局
-  layout->addWidget(quickAddSubjectBtn);
-  layout->addWidget(quickAddTaskBtn);
-  layout->addWidget(timerBtn);
-  layout->addWidget(reportBtn);
-  layout->addStretch();
-  layout->addWidget(userLabel);
+  // 工具栏布局 - 将固定按钮也加入到主工具栏
+  toolLayout->addWidget(quickAddSubjectBtn);
+  toolLayout->addWidget(quickAddTaskBtn);
+  toolLayout->addWidget(timerBtn);
+  toolLayout->addWidget(reportBtn);
+  toolLayout->addStretch();
+  toolLayout->addWidget(m_pinButton); // 固定按钮移到主工具栏
+  toolLayout->addWidget(userLabel);
+
+  // 添加到主布局
+  mainLayout->addWidget(m_timeLabel);
+  mainLayout->addLayout(toolLayout); // 只保留一行布局
 
   // 设置样式（增强视觉效果）
   m_floatingToolbar->setStyleSheet(R"(
         QWidget {
-            background-color: rgba(30, 30, 30, 220);
-            border-bottom: 3px solid #4CAF50;
-            border-radius: 0px 0px 8px 8px;
+            background-color: rgba(30, 30, 30, 230);
+            border-bottom: 4px solid #4CAF50;
+            border-radius: 0px 0px 10px 10px;
         }
         QPushButton {
             background-color: #4CAF50;
             color: white;
             border: none;
-            padding: 8px 16px;
+            padding: 6px 10px;
             margin: 2px;
-            border-radius: 4px;
+            border-radius: 6px;
             font-weight: bold;
-            min-width: 80px;
+            min-width: 70px;
+            min-height: 24px;
+            font-size: 11px;
         }
         QPushButton:hover {
             background-color: #45a049;
-            transform: translateY(-1px);
         }
         QPushButton:pressed {
             background-color: #3d8b40;
@@ -1305,9 +1447,12 @@ void MainWindow::setupFloatingToolbar() {
         QLabel {
             color: white;
             font-weight: bold;
-            margin: 0px 8px;
+            margin: 2px 8px;
         }
     )");
+
+  // 初始化状态变量
+  m_isPinned = false;
 
   setupFloatingAnimation();
 
@@ -1367,6 +1512,7 @@ void MainWindow::hideFloatingToolbar() {
 
   QRect currentGeometry = m_floatingToolbar->geometry();
   QRect targetGeometry = currentGeometry;
+  // 完全隐藏，只留下一个很小的触发区域，避免视觉缝隙
   targetGeometry.moveTop(-currentGeometry.height() + FLOATING_TRIGGER_HEIGHT);
 
   m_floatingAnimation->setStartValue(currentGeometry);
@@ -1456,8 +1602,31 @@ void MainWindow::setupSystemTray() {
   // 创建托盘图标
   m_trayIcon = new QSystemTrayIcon(this);
 
-  // 设置托盘图标
-  QIcon trayIconImage = this->style()->standardIcon(QStyle::SP_ComputerIcon);
+  // 设置托盘图标 - 使用闹钟图标
+  QIcon trayIconImage;
+
+  // 尝试使用系统闹钟图标，如果没有则使用时间图标
+  trayIconImage = this->style()->standardIcon(QStyle::SP_MediaPlay);
+  if (trayIconImage.isNull()) {
+    // 创建一个简单的闹钟图标
+    QPixmap pixmap(16, 16);
+    pixmap.fill(Qt::transparent);
+    QPainter painter(&pixmap);
+    painter.setRenderHint(QPainter::Antialiasing);
+
+    // 画闹钟外圆
+    painter.setPen(QPen(Qt::black, 2));
+    painter.setBrush(QBrush(Qt::white));
+    painter.drawEllipse(2, 2, 12, 12);
+
+    // 画指针
+    painter.setPen(QPen(Qt::black, 1));
+    painter.drawLine(8, 8, 8, 5);  // 时针
+    painter.drawLine(8, 8, 11, 8); // 分针
+
+    trayIconImage = QIcon(pixmap);
+  }
+
   m_trayIcon->setIcon(trayIconImage);
 
   // 设置工具提示
@@ -1878,3 +2047,122 @@ void MainWindow::updateFloatingToolbarForTrayMode() {
     }
   }
 } // end of 托盘相关
+
+void MainWindow::setupApplicationIcon() {
+  // 001-设置任务栏图标（闹钟样式）
+  QIcon appIcon;
+
+  // 尝试从资源文件加载图标
+  if (QIcon::hasThemeIcon("clock")) {
+    appIcon = QIcon::fromTheme("clock");
+  } else {
+    // 创建自定义闹钟图标
+    QPixmap pixmap(32, 32);
+    pixmap.fill(Qt::transparent);
+    QPainter painter(&pixmap);
+    painter.setRenderHint(QPainter::Antialiasing);
+
+    // 画闹钟外圆
+    painter.setPen(QPen(Qt::darkBlue, 2));
+    painter.setBrush(QBrush(Qt::white));
+    painter.drawEllipse(4, 4, 24, 24);
+
+    // 画闹钟顶部的铃铛
+    painter.setPen(QPen(Qt::darkBlue, 2));
+    painter.drawLine(12, 4, 12, 1);
+    painter.drawLine(20, 4, 20, 1);
+    painter.drawLine(10, 1, 22, 1);
+
+    // 画表盘数字位置
+    painter.setPen(QPen(Qt::black, 1));
+    painter.drawPoint(16, 8);  // 12点
+    painter.drawPoint(24, 16); // 3点
+    painter.drawPoint(16, 24); // 6点
+    painter.drawPoint(8, 16);  // 9点
+
+    // 画指针
+    painter.setPen(QPen(Qt::red, 2));
+    painter.drawLine(16, 16, 16, 10); // 时针
+    painter.setPen(QPen(Qt::blue, 1));
+    painter.drawLine(16, 16, 20, 16); // 分针
+
+    // 画中心点
+    painter.setPen(QPen(Qt::black, 2));
+    painter.drawPoint(16, 16);
+
+    appIcon = QIcon(pixmap);
+  }
+
+  // 设置窗口图标
+  setWindowIcon(appIcon);
+
+  // 设置应用程序图标（任务栏）
+  QApplication::setWindowIcon(appIcon);
+}
+
+// 003-3 时间显示更新
+void MainWindow::updateTimeDisplay() {
+  QDateTime currentTime = QDateTime::currentDateTime();
+  QString timeString = currentTime.toString("hh:mm:ss  yyyy年MM月dd日  dddd");
+  m_timeLabel->setText(timeString);
+}
+
+// 003-2 固定状态切换处理
+void MainWindow::onPinToggled(bool pinned) {
+  m_isPinned = pinned;
+
+  if (m_isPinned) {
+    // 固定状态：停止自动隐藏
+    m_floatingHideTimer->stop();
+    m_mouseCheckTimer->stop();
+    m_pinButton->setText(tr("📌 取消固定"));
+  } else {
+    // 非固定状态：启用自动隐藏
+    m_pinButton->setText(tr("📌 固定显示"));
+    // Note: Mouse check restart logic would go here
+  }
+}
+
+// Process Monitor Event Handlers
+void MainWindow::onProcessMonitorStarted(const QString &processName,
+                                         const QString &taskName) {
+  qDebug() << "MainWindow: Process monitoring started for" << processName
+           << "task:" << taskName;
+  statusBar()->showMessage(
+      QString("程序监控已启动: %1 (任务: %2)").arg(processName).arg(taskName),
+      5000);
+}
+
+void MainWindow::onProcessMonitorStopped(const QString &processName,
+                                         const QString &taskName,
+                                         qint64 durationSeconds) {
+  qDebug() << "MainWindow: Process monitoring stopped for" << processName
+           << "task:" << taskName << "duration:" << durationSeconds
+           << "seconds";
+  int minutes = durationSeconds / 60;
+  statusBar()->showMessage(
+      QString("程序监控已停止: %1 (任务: %2, 用时: %3分钟)")
+          .arg(processName)
+          .arg(taskName)
+          .arg(minutes),
+      5000);
+}
+
+void MainWindow::onProcessTimeRecorded(int taskId, qint64 durationSeconds,
+                                       bool isAutoRecorded) {
+  qDebug() << "MainWindow: Process time recorded for task ID" << taskId
+           << "duration:" << durationSeconds
+           << "seconds, auto:" << isAutoRecorded;
+
+  // Refresh task view to show updated times
+  Subject currentSubject = getCurrentSelectedSubject();
+  if (currentSubject.isValid()) {
+    loadTasksForSubject(currentSubject.id);
+  }
+
+  // Update status bar
+  int minutes = durationSeconds / 60;
+  statusBar()->showMessage(
+      QString("已记录程序时间: %1分钟 (任务ID: %2)").arg(minutes).arg(taskId),
+      3000);
+}

@@ -131,6 +131,57 @@
      <item row="6" column="1">
       <widget class="QComboBox" name="statusComboBox"/>
      </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="actualTimeLabel">
+       <property name="text">
+        <string>实际用时(分钟):</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
+      <widget class="QLabel" name="actualTimeValueLabel">
+       <property name="text">
+        <string>0</string>
+       </property>
+       <property name="styleSheet">
+        <string>font-weight: bold;</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0">
+      <widget class="QLabel" name="programTimeLabel">
+       <property name="text">
+        <string>程序自动计时(分钟):</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="1">
+      <widget class="QLabel" name="programTimeValueLabel">
+       <property name="text">
+        <string>0</string>
+       </property>
+       <property name="styleSheet">
+        <string>font-weight: bold; color: #2E8B57;</string>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="0">
+      <widget class="QLabel" name="linkedProgramsLabel">
+       <property name="text">
+        <string>关联程序:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="1">
+      <widget class="QLabel" name="linkedProgramsValueLabel">
+       <property name="text">
+        <string>无</string>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>

@@ -6,6 +6,7 @@
 #include <QJsonObject>
 #include <QMessageBox>
 #include <QNetworkRequest>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QUrlQuery>
 
@@ -15,13 +16,18 @@ namespace Core::Reports {
 
 LLMCommunicator::LLMCommunicator(QObject *parent) : ILLMCommunicator(parent) {
   m_networkManager = new QNetworkAccessManager(this);
-  m_userId = 0; // 默认用户ID
+  m_userId = 0;             // 默认用户ID
+  m_parentWidget = nullptr; // 初始化父窗口指针
   connect(m_networkManager, &QNetworkAccessManager::finished, this,
           &LLMCommunicator::onReplyFinished);
 }
 LLMCommunicator::~LLMCommunicator() {}
 
 void LLMCommunicator::setUserId(int userId) { m_userId = userId; }
+
+void LLMCommunicator::setParentWidget(QWidget *parent) {
+  m_parentWidget = parent;
+}
 
 void LLMCommunicator::configure(const QString &apiKey, const QString &apiUrl,
                                 const QString &modelName) {
@@ -96,11 +102,10 @@ void LLMCommunicator::requestInsights(const CalculatedMetrics &metrics,
     QString configKey =
         QString("%1%2/apiKey").arg(userPrefix).arg(modelSection);
 
-    QString apiKey = QInputDialog::getText(
-        nullptr, tr("LLM API Key"),
-        tr("Please enter your %1 API Key:").arg(modelName), QLineEdit::Password,
-        "", &ok);
-    if (ok && !apiKey.isEmpty()) {
+    // 使用新的验证函数获取有效的 API Key
+    QString apiKey = promptForValidApiKey(modelName);
+
+    if (!apiKey.isEmpty()) {
       settings.setValue(configKey, apiKey);
       settings.sync();   // 确保立即写入文件
       m_apiKey = apiKey; // 更新当前实例的 API Key
@@ -481,6 +486,160 @@ LLMInsights LLMCommunicator::parseResponse(const QByteArray &responseData,
   }
 
   return insights;
+}
+
+bool LLMCommunicator::validateApiKey(const QString &apiKey,
+                                     const QString &modelName) {
+  if (apiKey.isEmpty()) {
+    return false;
+  }
+
+  // 去除首尾空白字符
+  QString trimmedKey = apiKey.trimmed();
+  if (trimmedKey.isEmpty()) {
+    return false;
+  }
+
+  // 通用格式检查
+  if (trimmedKey.length() < 8) {
+    return false;
+  }
+
+  // 检查是否包含非打印字符或换行符
+  for (const QChar &ch : trimmedKey) {
+    if (ch == '\n' || ch == '\r' || ch == '\t' || !ch.isPrint()) {
+      return false;
+    }
+  }
+
+  // 根据不同模型进行特定验证
+  if (modelName == "Qwen") {
+    // 通义千问 API Key 通常以 sk- 开头，长度约为 48-64 字符
+    if (!trimmedKey.startsWith("sk-") || trimmedKey.length() < 32) {
+      return false;
+    }
+    // 检查是否只包含合法字符 (字母、数字、连字符)
+    QRegularExpression qwenPattern("^sk-[A-Za-z0-9\\-_]+$");
+    if (!qwenPattern.match(trimmedKey).hasMatch()) {
+      return false;
+    }
+  } else if (modelName == "Gemini") {
+    // Gemini API Key 通常长度约为 39 字符
+    if (trimmedKey.length() < 20 || trimmedKey.length() > 50) {
+      return false;
+    }
+    // 检查是否只包含合法字符 (字母、数字、连字符、下划线)
+    QRegularExpression geminiPattern("^[A-Za-z0-9\\-_]+$");
+    if (!geminiPattern.match(trimmedKey).hasMatch()) {
+      return false;
+    }
+  }
+
+  // 检查是否包含明显的错误内容
+  QStringList invalidPatterns = {"your_api_key_here",
+                                 "please_enter_your_key",
+                                 "example_key",
+                                 "test_key",
+                                 "demo_key",
+                                 "replace_this",
+                                 "api_key_here",
+                                 "enter_your_key",
+                                 "fake_key",
+                                 "sample_key",
+                                 "default_key",
+                                 "null",
+                                 "undefined",
+                                 "none",
+                                 "empty",
+                                 "placeholder",
+                                 "todo",
+                                 "fixme",
+                                 "change_me",
+                                 "update_me",
+                                 "LLM API Error",
+                                 "error",
+                                 "invalid",
+                                 "失败",
+                                 "错误",
+                                 "无效",
+                                 "请输入",
+                                 "001-",
+                                 "002-",
+                                 "003-",
+                                 "004-",
+                                 "005-",
+                                 "任务栏",
+                                 "美化",
+                                 "界面"};
+
+  QString lowerApiKey = trimmedKey.toLower();
+  for (const QString &pattern : invalidPatterns) {
+    if (lowerApiKey.contains(pattern)) {
+      return false;
+    }
+  }
+
+  // 检查是否为明显的测试数据
+  if (trimmedKey.startsWith("123") || trimmedKey.startsWith("abc") ||
+      trimmedKey.startsWith("test") || trimmedKey == "password") {
+    return false;
+  }
+
+  return true;
+}
+
+QString LLMCommunicator::promptForValidApiKey(const QString &modelName) {
+  QString apiKey;
+  bool ok = false;
+  int attempts = 0;
+  const int maxAttempts = 3;
+
+  while (attempts < maxAttempts) {
+    QString prompt;
+    if (attempts == 0) {
+      prompt = tr("Please enter your %1 API Key:").arg(modelName);
+    } else {
+      prompt = tr("API Key format is invalid. Please enter a valid %1 API Key "
+                  "(attempt %2/%3):")
+                   .arg(modelName)
+                   .arg(attempts + 1)
+                   .arg(maxAttempts);
+    }
+
+    apiKey = QInputDialog::getText(m_parentWidget, tr("LLM API Key"), prompt,
+                                   QLineEdit::Password, "", &ok);
+
+    // 用户取消了输入
+    if (!ok) {
+      return QString();
+    }
+
+    // 验证 API Key 格式
+    if (validateApiKey(apiKey, modelName)) {
+      return apiKey;
+    }
+
+    // 显示具体的错误信息
+    QString errorMsg;
+    if (modelName == "Qwen") {
+      errorMsg = tr("通义千问 API Key 应以 'sk-' 开头且长度至少32位。\n"
+                    "请确保您输入的是正确的 API Key。");
+    } else if (modelName == "Gemini") {
+      errorMsg = tr("Gemini API Key 格式不正确。\n"
+                    "请确保您输入的是从 Google AI Studio 获取的有效 API Key。");
+    } else {
+      errorMsg = tr("API Key 格式不正确，请检查后重新输入。");
+    }
+
+    QMessageBox::warning(m_parentWidget, tr("API Key 格式错误"), errorMsg);
+    attempts++;
+  }
+
+  // 超过最大尝试次数
+  QMessageBox::critical(
+      m_parentWidget, tr("输入失败"),
+      tr("已达到最大尝试次数。请稍后再试或检查您的 API Key 格式。"));
+  return QString();
 }
 
 } // namespace Core::Reports

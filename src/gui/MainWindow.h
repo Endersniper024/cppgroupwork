@@ -11,6 +11,10 @@
 #include <QEvent>
 #include <QMenu>
 #include <QSystemTrayIcon>
+// 浮动工具栏相关头文件
+#include <QLabel>
+#include <QPushButton>
+#include <QSlider>
 
 #include "core/ActivityMonitorService.h" // For activity monitoring service
 #include "core/Subject.h"                // Add this
@@ -35,7 +39,8 @@ class QPushButton; // For Add/Edit/Delete buttons
 class QTableView;
 class QStandardItemModel; // For populating the table view simply
 
-class TimerWidget; // Forward declaration
+class TimerWidget;           // Forward declaration
+class ProcessMonitorService; // Forward declaration
 
 // class DataAggregator;
 
@@ -90,7 +95,16 @@ private slots:
   void onEditTask();
   void onDeleteTask();
   void onTaskTableDoubleClicked(const QModelIndex &index);
-  void onChangeTaskStatus(); // Slot for context menu or button
+  void onChangeTaskStatus();    // Slot for context menu or button
+  void onProcessLinkSettings(); // 004-程序关联设置
+
+  // 程序监控相关槽函数
+  void onProcessMonitorStarted(const QString &processName,
+                               const QString &taskName);
+  void onProcessMonitorStopped(const QString &processName,
+                               const QString &taskName, qint64 durationSeconds);
+  void onProcessTimeRecorded(int taskId, qint64 durationSeconds,
+                             bool isAutoRecorded);
   // void onTimerLoggedNewEntry(const Core::TimeLog& newLog); // From manual
   // timer
 
@@ -163,6 +177,7 @@ private:
   // WinAPI TM-005
 
   ActivityMonitorService *m_activityMonitor;
+  ProcessMonitorService *m_processMonitorService; // 程序监控服务
 
   void onAutoTimeSegmentLogged(
       const TimeLog &newLog); // Slot to handle auto time logging
@@ -189,11 +204,19 @@ private:
   bool m_floatingToolbarHidden;
   QAction *m_toggleFloatingAction;
 
+  // 新增：浮动工具栏美化功能
+  QPushButton *m_pinButton;
+  QLabel *m_timeLabel;
+  QTimer *m_timeUpdateTimer;
+  bool m_isPinned;
+
   void setupFloatingToolbar();
   void setupFloatingAnimation();
+  void updateTimeDisplay();       // 更新时间显示
+  void onPinToggled(bool pinned); // 固定状态切换处理
   bool eventFilter(QObject *obj, QEvent *event) override;
 
-  static const int FLOATING_TRIGGER_HEIGHT = 5;
+  static const int FLOATING_TRIGGER_HEIGHT = 8; // 增加触发高度，减少缝隙
   static const int FLOATING_HIDE_DELAY = 3000;
   int showDialogCentered(QDialog *dialog);
   // end of floating toolbar
@@ -216,6 +239,7 @@ private:
   // 系统托盘相关方法声明
   void setupSystemTray();
   void createTrayMenu();
+  void setupApplicationIcon(); // 设置应用程序图标
   void setupGlobalMouseMonitoring();
   void updateFloatingToolbarForTrayMode();
   bool isSystemTrayAvailable();

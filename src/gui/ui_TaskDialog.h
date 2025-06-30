@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'TaskDialog.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.2
+** Created by: Qt User Interface Compiler version 6.9.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -10,6 +10,7 @@
 #define UI_TASKDIALOG_H
 
 #include <QtCore/QVariant>
+#include <QtWidgets/QAbstractButton>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QDateTimeEdit>
@@ -44,6 +45,12 @@ public:
     QSpinBox *estimatedTimeSpinBox;
     QLabel *statusLabelInfo;
     QComboBox *statusComboBox;
+    QLabel *actualTimeLabel;
+    QLabel *actualTimeValueLabel;
+    QLabel *programTimeLabel;
+    QLabel *programTimeValueLabel;
+    QLabel *linkedProgramsLabel;
+    QLabel *linkedProgramsValueLabel;
     QLabel *dialogStatusLabel;
     QSpacerItem *verticalSpacer;
     QDialogButtonBox *buttonBox;
@@ -51,103 +58,134 @@ public:
     void setupUi(QDialog *TaskDialog)
     {
         if (TaskDialog->objectName().isEmpty())
-            TaskDialog->setObjectName(QString::fromUtf8("TaskDialog"));
+            TaskDialog->setObjectName("TaskDialog");
         TaskDialog->resize(480, 450);
         TaskDialog->setModal(true);
         verticalLayout = new QVBoxLayout(TaskDialog);
-        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        verticalLayout->setObjectName("verticalLayout");
         formLayout = new QFormLayout();
-        formLayout->setObjectName(QString::fromUtf8("formLayout"));
+        formLayout->setObjectName("formLayout");
         nameLabel = new QLabel(TaskDialog);
-        nameLabel->setObjectName(QString::fromUtf8("nameLabel"));
+        nameLabel->setObjectName("nameLabel");
 
-        formLayout->setWidget(0, QFormLayout::LabelRole, nameLabel);
+        formLayout->setWidget(0, QFormLayout::ItemRole::LabelRole, nameLabel);
 
         nameLineEdit = new QLineEdit(TaskDialog);
-        nameLineEdit->setObjectName(QString::fromUtf8("nameLineEdit"));
+        nameLineEdit->setObjectName("nameLineEdit");
 
-        formLayout->setWidget(0, QFormLayout::FieldRole, nameLineEdit);
+        formLayout->setWidget(0, QFormLayout::ItemRole::FieldRole, nameLineEdit);
 
         subjectLabel = new QLabel(TaskDialog);
-        subjectLabel->setObjectName(QString::fromUtf8("subjectLabel"));
+        subjectLabel->setObjectName("subjectLabel");
 
-        formLayout->setWidget(1, QFormLayout::LabelRole, subjectLabel);
+        formLayout->setWidget(1, QFormLayout::ItemRole::LabelRole, subjectLabel);
 
         subjectComboBox = new QComboBox(TaskDialog);
-        subjectComboBox->setObjectName(QString::fromUtf8("subjectComboBox"));
+        subjectComboBox->setObjectName("subjectComboBox");
 
-        formLayout->setWidget(1, QFormLayout::FieldRole, subjectComboBox);
+        formLayout->setWidget(1, QFormLayout::ItemRole::FieldRole, subjectComboBox);
 
         descriptionLabel = new QLabel(TaskDialog);
-        descriptionLabel->setObjectName(QString::fromUtf8("descriptionLabel"));
+        descriptionLabel->setObjectName("descriptionLabel");
 
-        formLayout->setWidget(2, QFormLayout::LabelRole, descriptionLabel);
+        formLayout->setWidget(2, QFormLayout::ItemRole::LabelRole, descriptionLabel);
 
         descriptionTextEdit = new QPlainTextEdit(TaskDialog);
-        descriptionTextEdit->setObjectName(QString::fromUtf8("descriptionTextEdit"));
+        descriptionTextEdit->setObjectName("descriptionTextEdit");
         descriptionTextEdit->setMinimumSize(QSize(0, 80));
 
-        formLayout->setWidget(2, QFormLayout::FieldRole, descriptionTextEdit);
+        formLayout->setWidget(2, QFormLayout::ItemRole::FieldRole, descriptionTextEdit);
 
         priorityLabel = new QLabel(TaskDialog);
-        priorityLabel->setObjectName(QString::fromUtf8("priorityLabel"));
+        priorityLabel->setObjectName("priorityLabel");
 
-        formLayout->setWidget(3, QFormLayout::LabelRole, priorityLabel);
+        formLayout->setWidget(3, QFormLayout::ItemRole::LabelRole, priorityLabel);
 
         priorityComboBox = new QComboBox(TaskDialog);
-        priorityComboBox->setObjectName(QString::fromUtf8("priorityComboBox"));
+        priorityComboBox->setObjectName("priorityComboBox");
 
-        formLayout->setWidget(3, QFormLayout::FieldRole, priorityComboBox);
+        formLayout->setWidget(3, QFormLayout::ItemRole::FieldRole, priorityComboBox);
 
         dueDateLabel = new QLabel(TaskDialog);
-        dueDateLabel->setObjectName(QString::fromUtf8("dueDateLabel"));
+        dueDateLabel->setObjectName("dueDateLabel");
 
-        formLayout->setWidget(4, QFormLayout::LabelRole, dueDateLabel);
+        formLayout->setWidget(4, QFormLayout::ItemRole::LabelRole, dueDateLabel);
 
         dueDateTimeEdit = new QDateTimeEdit(TaskDialog);
-        dueDateTimeEdit->setObjectName(QString::fromUtf8("dueDateTimeEdit"));
+        dueDateTimeEdit->setObjectName("dueDateTimeEdit");
         dueDateTimeEdit->setCalendarPopup(true);
 
-        formLayout->setWidget(4, QFormLayout::FieldRole, dueDateTimeEdit);
+        formLayout->setWidget(4, QFormLayout::ItemRole::FieldRole, dueDateTimeEdit);
 
         estimatedTimeLabel = new QLabel(TaskDialog);
-        estimatedTimeLabel->setObjectName(QString::fromUtf8("estimatedTimeLabel"));
+        estimatedTimeLabel->setObjectName("estimatedTimeLabel");
 
-        formLayout->setWidget(5, QFormLayout::LabelRole, estimatedTimeLabel);
+        formLayout->setWidget(5, QFormLayout::ItemRole::LabelRole, estimatedTimeLabel);
 
         estimatedTimeSpinBox = new QSpinBox(TaskDialog);
-        estimatedTimeSpinBox->setObjectName(QString::fromUtf8("estimatedTimeSpinBox"));
+        estimatedTimeSpinBox->setObjectName("estimatedTimeSpinBox");
         estimatedTimeSpinBox->setMaximum(9999);
         estimatedTimeSpinBox->setSingleStep(15);
 
-        formLayout->setWidget(5, QFormLayout::FieldRole, estimatedTimeSpinBox);
+        formLayout->setWidget(5, QFormLayout::ItemRole::FieldRole, estimatedTimeSpinBox);
 
         statusLabelInfo = new QLabel(TaskDialog);
-        statusLabelInfo->setObjectName(QString::fromUtf8("statusLabelInfo"));
+        statusLabelInfo->setObjectName("statusLabelInfo");
 
-        formLayout->setWidget(6, QFormLayout::LabelRole, statusLabelInfo);
+        formLayout->setWidget(6, QFormLayout::ItemRole::LabelRole, statusLabelInfo);
 
         statusComboBox = new QComboBox(TaskDialog);
-        statusComboBox->setObjectName(QString::fromUtf8("statusComboBox"));
+        statusComboBox->setObjectName("statusComboBox");
 
-        formLayout->setWidget(6, QFormLayout::FieldRole, statusComboBox);
+        formLayout->setWidget(6, QFormLayout::ItemRole::FieldRole, statusComboBox);
+
+        actualTimeLabel = new QLabel(TaskDialog);
+        actualTimeLabel->setObjectName("actualTimeLabel");
+
+        formLayout->setWidget(7, QFormLayout::ItemRole::LabelRole, actualTimeLabel);
+
+        actualTimeValueLabel = new QLabel(TaskDialog);
+        actualTimeValueLabel->setObjectName("actualTimeValueLabel");
+
+        formLayout->setWidget(7, QFormLayout::ItemRole::FieldRole, actualTimeValueLabel);
+
+        programTimeLabel = new QLabel(TaskDialog);
+        programTimeLabel->setObjectName("programTimeLabel");
+
+        formLayout->setWidget(8, QFormLayout::ItemRole::LabelRole, programTimeLabel);
+
+        programTimeValueLabel = new QLabel(TaskDialog);
+        programTimeValueLabel->setObjectName("programTimeValueLabel");
+
+        formLayout->setWidget(8, QFormLayout::ItemRole::FieldRole, programTimeValueLabel);
+
+        linkedProgramsLabel = new QLabel(TaskDialog);
+        linkedProgramsLabel->setObjectName("linkedProgramsLabel");
+
+        formLayout->setWidget(9, QFormLayout::ItemRole::LabelRole, linkedProgramsLabel);
+
+        linkedProgramsValueLabel = new QLabel(TaskDialog);
+        linkedProgramsValueLabel->setObjectName("linkedProgramsValueLabel");
+        linkedProgramsValueLabel->setWordWrap(true);
+
+        formLayout->setWidget(9, QFormLayout::ItemRole::FieldRole, linkedProgramsValueLabel);
 
 
         verticalLayout->addLayout(formLayout);
 
         dialogStatusLabel = new QLabel(TaskDialog);
-        dialogStatusLabel->setObjectName(QString::fromUtf8("dialogStatusLabel"));
+        dialogStatusLabel->setObjectName("dialogStatusLabel");
         dialogStatusLabel->setAlignment(Qt::AlignCenter);
         dialogStatusLabel->setWordWrap(true);
 
         verticalLayout->addWidget(dialogStatusLabel);
 
-        verticalSpacer = new QSpacerItem(20, 10, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        verticalSpacer = new QSpacerItem(20, 10, QSizePolicy::Policy::Minimum, QSizePolicy::Policy::Expanding);
 
         verticalLayout->addItem(verticalSpacer);
 
         buttonBox = new QDialogButtonBox(TaskDialog);
-        buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
+        buttonBox->setObjectName("buttonBox");
         buttonBox->setOrientation(Qt::Horizontal);
         buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Save);
 
@@ -186,6 +224,14 @@ public:
         dueDateTimeEdit->setDisplayFormat(QCoreApplication::translate("TaskDialog", "yyyy-MM-dd HH:mm", nullptr));
         estimatedTimeLabel->setText(QCoreApplication::translate("TaskDialog", "\351\242\204\350\256\241\347\224\250\346\227\266(\345\210\206\351\222\237)(&E):", nullptr));
         statusLabelInfo->setText(QCoreApplication::translate("TaskDialog", "\347\212\266\346\200\201(&T):", nullptr));
+        actualTimeLabel->setText(QCoreApplication::translate("TaskDialog", "\345\256\236\351\231\205\347\224\250\346\227\266(\345\210\206\351\222\237):", nullptr));
+        actualTimeValueLabel->setText(QCoreApplication::translate("TaskDialog", "0", nullptr));
+        actualTimeValueLabel->setStyleSheet(QCoreApplication::translate("TaskDialog", "font-weight: bold;", nullptr));
+        programTimeLabel->setText(QCoreApplication::translate("TaskDialog", "\347\250\213\345\272\217\350\207\252\345\212\250\350\256\241\346\227\266(\345\210\206\351\222\237):", nullptr));
+        programTimeValueLabel->setText(QCoreApplication::translate("TaskDialog", "0", nullptr));
+        programTimeValueLabel->setStyleSheet(QCoreApplication::translate("TaskDialog", "font-weight: bold; color: #2E8B57;", nullptr));
+        linkedProgramsLabel->setText(QCoreApplication::translate("TaskDialog", "\345\205\263\350\201\224\347\250\213\345\272\217:", nullptr));
+        linkedProgramsValueLabel->setText(QCoreApplication::translate("TaskDialog", "\346\227\240", nullptr));
         dialogStatusLabel->setText(QString());
     } // retranslateUi
 

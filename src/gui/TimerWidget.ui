@@ -222,6 +222,64 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="programMonitorGroupBox">
+     <property name="title">
+      <string>程序自动计时</string>
+     </property>
+     <layout class="QVBoxLayout" name="programMonitorLayout">
+      <item>
+       <widget class="QLabel" name="programStatusLabel">
+        <property name="text">
+         <string>未检测到关联程序</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="styleSheet">
+         <string>color: #666;</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="programTimeLabel">
+        <property name="text">
+         <string>程序计时: 00:00:00</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string>color: #2E8B57;</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QProgressBar" name="programTimeProgressBar">
+        <property name="visible">
+         <bool>false</bool>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="value">
+         <number>0</number>
+        </property>
+        <property name="textVisible">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="notesGroupBox">
      <property name="title">
       <string>会话备注 (可选)</string>

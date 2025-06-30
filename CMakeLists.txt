@@ -50,6 +50,8 @@ set(PROJECT_SOURCES
     src/core/Task.cpp
     src/core/TimeLog.cpp
     src/core/ActivityMonitorService.cpp
+    src/core/ProcessMonitor.cpp
+    src/core/ProcessMonitorService.cpp
 
     src/core/reports/DataAggregator.cpp
     src/core/reports/LLMCommunicator.cpp
@@ -63,6 +65,7 @@ set(PROJECT_SOURCES
     src/gui/TaskDialog.cpp
     src/gui/TimerWidget.cpp
     src/gui/RegisterDialog.cpp
+    src/gui/ProcessLinkSettingsDialog.cpp
 
     src/gui/report/ReportDisplayDialog.cpp
     src/gui/report/ReportSettingsDialog.cpp
@@ -76,6 +79,9 @@ set(PROJECT_HEADERS
     src/core/Task.h
     src/core/TimeLog.h
     src/core/ActivityMonitorService.h
+    src/core/ProcessMonitor.h
+    src/core/ProcessMonitorService.h
+    src/core/ProcessLink.h
     src/core/reports/Core.h
 
     src/core/reports/DataAggregator.h
@@ -98,6 +104,7 @@ set(PROJECT_HEADERS
     src/gui/TaskDialog.h
     src/gui/TimerWidget.h
     src/gui/RegisterDialog.h
+    src/gui/ProcessLinkSettingsDialog.h
 
     src/gui/report/ReportDisplayDialog.h
     src/gui/report/ReportSettingsDialog.h
