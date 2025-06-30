@@ -37,74 +37,66 @@
 #include <QPropertyAnimation>
 #include <QPushButton>
 #include <QScreen>
+#include <QScreen> // For QScreen pointer usage
 #include <QSettings> // For application settings (fixes QSettings not declared error)
 #include <QStandardItemModel>
-#include <QHeaderView> // For table header properties
-#include <QMenu>       // For context menu on tasks
-#include <QSettings>   // For application settings (fixes QSettings not declared error)
 #include <QTableView>
 #include <QTimer>
 #include <QVBoxLayout>
-#include <QScreen>     // For QScreen pointer usage
 
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent), ui(new Ui::MainWindow), m_dataAggregator(nullptr),
+      m_metricCalculator(nullptr), m_llmCommunicator(nullptr),
+      m_reportGenerator(nullptr), m_generateReportAction(nullptr),
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow) ,
-    m_dataAggregator(nullptr),
-    m_metricCalculator(nullptr),
-    m_llmCommunicator(nullptr),
-    m_reportGenerator(nullptr),
-    m_generateReportAction(nullptr), 
+      m_floatingToolbar(nullptr),
+      m_floatingHideTimer(new QTimer(this)), // 浮动栏初始化
+      m_mouseCheckTimer(new QTimer(this)),
+      m_floatingAnimation(new QPropertyAnimation(this)),
+      m_floatingToolbarHidden(false),
+      m_toggleFloatingAction(nullptr), // 托盘相关初始化
+      m_trayIcon(nullptr), m_trayMenu(nullptr), m_showAction(nullptr),
+      m_hideAction(nullptr), m_quitAction(nullptr), m_addSubjectAction(nullptr),
+      m_addTaskAction(nullptr), m_startTimerAction(nullptr),
+      m_toggleFloatingTrayAction(nullptr), m_isInTrayMode(false),
+      m_floatingToolbarEnabled(true), m_trayMessageShown(false),
+      m_globalMouseTimer(new QTimer(this)) {
+  // qDebug() << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" ;
 
+  // 设置全局字体变大，自适应分辨率
+  QFont appFont = qApp->font();
+  // 你可以根据屏幕分辨率动态调整字号
+  QScreen *screen = QGuiApplication::primaryScreen();
+  int dpi = screen ? int(screen->logicalDotsPerInch()) : 96;
+  int basePointSize = 13;
+  if (dpi > 120) {
+    basePointSize = 17;
+  } else if (dpi > 100) {
+    basePointSize = 15;
+  }
+  appFont.setPointSize(basePointSize);
+  qApp->setFont(appFont);
 
-    m_floatingToolbar(nullptr), m_floatingHideTimer(new QTimer(this)), // 浮动栏初始化
-    m_mouseCheckTimer(new QTimer(this)),
-    m_floatingAnimation(new QPropertyAnimation(this)),
-    m_floatingToolbarHidden(false),
-    m_toggleFloatingAction(nullptr), // 托盘相关初始化
-    m_trayIcon(nullptr), m_trayMenu(nullptr), m_showAction(nullptr),
-    m_hideAction(nullptr), m_quitAction(nullptr), m_addSubjectAction(nullptr),
-    m_addTaskAction(nullptr), m_startTimerAction(nullptr),
-    m_toggleFloatingTrayAction(nullptr), m_isInTrayMode(false),
-    m_floatingToolbarEnabled(true), m_trayMessageShown(false),
-    m_globalMouseTimer(new QTimer(this)) 
-{
-    // qDebug() << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" ;
+  ui->setupUi(this);
+  qDebug() << "1";
+  setWindowTitle("协同学习时间管理平台");
+  qDebug() << "2";
+  setupMenuBar();
+  qDebug() << "3";
+  setupSubjectDockWidget(); // Add this call
+  qDebug() << "4";
+  setupTaskView();
+  qDebug() << "5";
+  setupTimerDockWidget();
+  qDebug() << "6";
+  initializeReportComponents(); // Initialize TM-006 components
+  m_activityMonitor = new ActivityMonitorService(this);
+  connect(m_activityMonitor, &ActivityMonitorService::timedSegmentLogged, this,
+          &MainWindow::onAutoTimeSegmentLogged);
+  // connect(m_activityMonitor, &ActivityMonitorService::currentActivityUpdate,
+  // this, &MainWindow::onAutoActivityUpdate);
 
-    // 设置全局字体变大，自适应分辨率
-    QFont appFont = qApp->font();
-    // 你可以根据屏幕分辨率动态调整字号
-    QScreen *screen = QGuiApplication::primaryScreen();
-    int dpi = screen ? int(screen->logicalDotsPerInch()) : 96;
-    int basePointSize = 13;
-    if (dpi > 120) {
-        basePointSize = 17;
-    } else if (dpi > 100) {
-        basePointSize = 15;
-    }
-    appFont.setPointSize(basePointSize);
-    qApp->setFont(appFont);
-
-
-    ui->setupUi(this);
-    qDebug() << "1" ;
-    setWindowTitle("协同学习时间管理平台");
-    qDebug() << "2" ;
-    setupMenuBar();
-    qDebug() << "3" ;
-    setupSubjectDockWidget(); // Add this call
-    qDebug() << "4" ;
-    setupTaskView();
-    qDebug() << "5" ;
-    setupTimerDockWidget();
-    qDebug() << "6" ;
-    initializeReportComponents(); // Initialize TM-006 components
-    m_activityMonitor = new ActivityMonitorService(this);
-    connect(m_activityMonitor, &ActivityMonitorService::timedSegmentLogged, this, &MainWindow::onAutoTimeSegmentLogged);
-    // connect(m_activityMonitor, &ActivityMonitorService::currentActivityUpdate, this, &MainWindow::onAutoActivityUpdate);
-
-    qDebug() << "7" ;
+  qDebug() << "7";
 
   updateStatusBar();
   updateSubjectActionButtons(); // Initial Subject state
@@ -450,15 +442,15 @@ void MainWindow::setupSubjectDockWidget() {
               onEditSubject(); // Trigger edit on double click
           });
 
-    QFont listFont = m_subjectListWidget->font();
-    listFont.setPointSize(listFont.pointSize() + 10);
-    m_subjectListWidget->setFont(listFont);
-    layout->addWidget(m_subjectListWidget);
+  QFont listFont = m_subjectListWidget->font();
+  listFont.setPointSize(listFont.pointSize() + 10);
+  m_subjectListWidget->setFont(listFont);
+  layout->addWidget(m_subjectListWidget);
 
-    QHBoxLayout *buttonLayout = new QHBoxLayout();
-    m_addSubjectButton = new QPushButton(tr("添加"), dockContents);
-    m_editSubjectButton = new QPushButton(tr("编辑"), dockContents);
-    m_deleteSubjectButton = new QPushButton(tr("删除"), dockContents);
+  QHBoxLayout *buttonLayout = new QHBoxLayout();
+  m_addSubjectButton = new QPushButton(tr("添加"), dockContents);
+  m_editSubjectButton = new QPushButton(tr("编辑"), dockContents);
+  m_deleteSubjectButton = new QPushButton(tr("删除"), dockContents);
 
   connect(m_addSubjectButton, &QPushButton::clicked, this,
           &MainWindow::onAddSubject);
@@ -476,16 +468,16 @@ void MainWindow::setupSubjectDockWidget() {
   m_subjectDockWidget->setWidget(dockContents);
   addDockWidget(Qt::LeftDockWidgetArea, m_subjectDockWidget);
 
-    // Example: Add a menu item to show/hide this dock widget
-    QMenu *viewMenu = menuBar()->findChild<QMenu*>("viewMenu");
-    if (!viewMenu) {
-        viewMenu = menuBar()->addMenu(tr("视图(&V)"));
-        viewMenu->setObjectName("viewMenu");
-    }
-    // else {
-    viewMenu->addAction(m_subjectDockWidget->toggleViewAction());
-    // }
-    // QMenu *viewMenu = menuBar()->addMenu(tr("视图(&V)"));
+  // Example: Add a menu item to show/hide this dock widget
+  QMenu *viewMenu = menuBar()->findChild<QMenu *>("viewMenu");
+  if (!viewMenu) {
+    viewMenu = menuBar()->addMenu(tr("视图(&V)"));
+    viewMenu->setObjectName("viewMenu");
+  }
+  // else {
+  viewMenu->addAction(m_subjectDockWidget->toggleViewAction());
+  // }
+  // QMenu *viewMenu = menuBar()->addMenu(tr("视图(&V)"));
 }
 
 void MainWindow::loadSubjectsForCurrentUser() {
@@ -1068,36 +1060,27 @@ void MainWindow::initializeReportComponents() {
                     QSettings::IniFormat); // Uses organizationName and
                                            // applicationName set in main.cpp
 
-  QString apiKey = settings->value("llm_Qwen/apiKey").toString();
-  // QString apiUrl =
-  //     settings
-  //         ->value("llm/apiUrl", "https://generativelanguage.googleapis.com/"
-  //                               "v1beta/models/%1:generateContent?key=%2")
-  //         .toString(); // Default example
-  // QString modelName =
-  //     settings->value("llm/modelName", "gemini-2.0-flash").toString();
-  QString apiUrl = settings->value("llm_Qwen/apiUrl").toString();
-  QString modelName = settings->value("llm_Qwen/modelName").toString();
+  // 基于当前用户读取 LLM 配置
+  QString userPrefix = QString("user_%1_").arg(m_currentUser.id);
+  QString apiKey =
+      settings->value(QString("%1llm_Qwen/apiKey").arg(userPrefix)).toString();
+  QString apiUrl =
+      settings->value(QString("%1llm_Qwen/apiUrl").arg(userPrefix)).toString();
+  QString modelName =
+      settings->value(QString("%1llm_Qwen/modelName").arg(userPrefix))
+          .toString();
 
-  if (apiKey.isEmpty() or apiKey.size() < 10) {
-    // Prompt user or direct to settings if API key is essential for core LLM
-    // functionality This is a simplified prompt for first-time setup. A proper
-    // settings dialog is better.
-    bool ok;
-    apiKey = QInputDialog::getText(
-        this, tr("LLM API Key"),
-        tr("Please enter your LLM API Key (e.g., OpenAI):"),
-        QLineEdit::Password, "", &ok);
-    if (ok && !apiKey.isEmpty()) {
-      settings->setValue("llm/apiKey", apiKey);
-    } else {
-      QMessageBox::warning(
-          this, tr("LLM Configuration"),
-          tr("LLM API Key not set. LLM-based analysis will be unavailable."));
-    }
+  // 如果用户专用配置不存在，使用默认配置
+  if (apiUrl.isEmpty()) {
+    apiUrl = settings->value("llm_Qwen/apiUrl").toString();
+    modelName = settings->value("llm_Qwen/modelName").toString();
   }
 
+  // 不在程序启动时强制要求输入 API Key
+  // 用户会在实际选择和使用模型时输入相应的 API Key
+
   auto concreteLlmComm = new Core::Reports::LLMCommunicator();
+  concreteLlmComm->setUserId(m_currentUser.id); // 设置当前用户ID
   concreteLlmComm->configure(apiKey, apiUrl, modelName);
   m_llmCommunicator = concreteLlmComm; // Store as interface type
 
@@ -1151,23 +1134,48 @@ void MainWindow::onGenerateReportActionTriggered() {
 
     if (params.selectedLLMModel == "Gemini") {
       QSettings *settings =
-      new QSettings(QStringLiteral("data/set.ini"),
-                    QSettings::IniFormat); // Uses organizationName and
-                                           // applicationName set in main.cpp
-      QString apiKey = settings->value("llm_Gemini/apiKey").toString();
-      QString apiUrl = settings->value("llm_Gemini/apiUrl").toString();
-      QString modelName = settings->value("llm_Gemini/modelName").toString();
+          new QSettings(QStringLiteral("data/set.ini"), QSettings::IniFormat);
+
+      QString userPrefix = QString("user_%1_").arg(m_currentUser.id);
+      QString apiKey =
+          settings->value(QString("%1llm_Gemini/apiKey").arg(userPrefix))
+              .toString();
+      QString apiUrl =
+          settings->value(QString("%1llm_Gemini/apiUrl").arg(userPrefix))
+              .toString();
+      QString modelName =
+          settings->value(QString("%1llm_Gemini/modelName").arg(userPrefix))
+              .toString();
+
+      // 如果用户专用配置不存在，使用默认配置
+      if (apiUrl.isEmpty()) {
+        apiUrl = settings->value("llm_Gemini/apiUrl").toString();
+        modelName = settings->value("llm_Gemini/modelName").toString();
+      }
+
       m_llmCommunicator->configure(apiKey, apiUrl, modelName);
       delete settings;
-    }
-    else if(params.selectedLLMModel == "Qwen") {
+    } else if (params.selectedLLMModel == "Qwen") {
       QSettings *settings =
-      new QSettings(QStringLiteral("data/set.ini"),
-                    QSettings::IniFormat); // Uses organizationName and
-                                           // applicationName set in main.cpp
-      QString apiKey = settings->value("llm_Qwen/apiKey").toString();
-      QString apiUrl = settings->value("llm_Qwen/apiUrl").toString();
-      QString modelName = settings->value("llm_Qwen/modelName").toString();
+          new QSettings(QStringLiteral("data/set.ini"), QSettings::IniFormat);
+
+      QString userPrefix = QString("user_%1_").arg(m_currentUser.id);
+      QString apiKey =
+          settings->value(QString("%1llm_Qwen/apiKey").arg(userPrefix))
+              .toString();
+      QString apiUrl =
+          settings->value(QString("%1llm_Qwen/apiUrl").arg(userPrefix))
+              .toString();
+      QString modelName =
+          settings->value(QString("%1llm_Qwen/modelName").arg(userPrefix))
+              .toString();
+
+      // 如果用户专用配置不存在，使用默认配置
+      if (apiUrl.isEmpty()) {
+        apiUrl = settings->value("llm_Qwen/apiUrl").toString();
+        modelName = settings->value("llm_Qwen/modelName").toString();
+      }
+
       m_llmCommunicator->configure(apiKey, apiUrl, modelName);
       delete settings;
     }
