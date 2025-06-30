@@ -2,9 +2,11 @@
 #include <QDebug>
 
 #ifdef Q_OS_WIN
-#include <tlhelp32.h>
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
 #include <windows.h>
-
+#include <tlhelp32.h>
 #endif
 
 // 移除了假的 COMMON_PROCESSES 列表，改为显示真实的用户进程

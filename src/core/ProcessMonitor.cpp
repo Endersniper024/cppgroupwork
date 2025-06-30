@@ -2,10 +2,12 @@
 #include <QDebug>
 
 #ifdef Q_OS_WIN
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
 #include <psapi.h>
 #include <tlhelp32.h>
-#include <windows.h>
-
 #endif
 
 ProcessMonitor::ProcessMonitor(QObject *parent)
@@ -95,14 +97,14 @@ QStringList ProcessMonitor::getCurrentProcesses() {
     return processes;
   }
 
-  PROCESSENTRY32 pe32;
-  pe32.dwSize = sizeof(PROCESSENTRY32);
+  PROCESSENTRY32W pe32;
+  pe32.dwSize = sizeof(PROCESSENTRY32W);
 
-  if (Process32First(hProcessSnap, &pe32)) {
+  if (Process32FirstW(hProcessSnap, &pe32)) {
     do {
       QString processName = QString::fromWCharArray(pe32.szExeFile);
       processes.append(processName);
-    } while (Process32Next(hProcessSnap, &pe32));
+    } while (Process32NextW(hProcessSnap, &pe32));
   }
 
   CloseHandle(hProcessSnap);
